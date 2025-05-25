@@ -1,0 +1,229 @@
+
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { User, Mail, Calendar, Star, Trophy, BookOpen, Edit3 } from "lucide-react";
+import { mockApi, User as UserType } from "@/services/mockApi";
+import { toast } from "sonner";
+
+const Profile = () => {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: ''
+  });
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await mockApi.getCurrentUser();
+        setUser(userData);
+        setFormData({
+          name: userData.name,
+          email: userData.email
+        });
+      } catch (error) {
+        console.error('Failed to load user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    try {
+      const updatedUser = await mockApi.updateUser(formData);
+      setUser(updatedUser);
+      setEditing(false);
+      toast.success('Profile updated successfully!');
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      toast.error('Failed to update profile');
+    }
+  };
+
+  const handleCancel = () => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        email: user.email
+      });
+    }
+    setEditing(false);
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-48 bg-gray-200 rounded-lg"></div>
+            <div className="h-32 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const progressPercentage = ((user.totalXp % 1000) / 1000) * 100;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="gradient-text">Profile</span>
+          </h1>
+          <p className="text-xl text-gray-600">
+            Manage your account and view your progress
+          </p>
+        </div>
+
+        {/* Profile Card */}
+        <Card className="p-8 mb-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Avatar and Basic Info */}
+            <div className="flex-shrink-0 text-center">
+              <img 
+                src={user.avatar}
+                alt={user.name}
+                className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-primary/20"
+              />
+              <Badge className="bg-primary/10 text-primary border-primary/20">
+                {user.role === 'consumer' ? 'Content Consumer' : 
+                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'}
+              </Badge>
+            </div>
+
+            {/* User Details */}
+            <div className="flex-1 space-y-6">
+              <div className="flex justify-between items-start">
+                <h2 className="text-3xl font-bold">{user.name}</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(!editing)}
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  {editing ? 'Cancel' : 'Edit'}
+                </Button>
+              </div>
+
+              {editing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Name</label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Email</label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="Your email"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleSave}>Save Changes</Button>
+                    <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <Mail className="h-5 w-5" />
+                    <span>{user.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <Calendar className="h-5 w-5" />
+                    <span>Joined {new Date(user.joinDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <User className="h-5 w-5" />
+                    <span>Level {user.level}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="p-6 text-center">
+            <div className="w-12 h-12 bg-yellow-100 text-yellow-600 mx-auto mb-3 flex items-center justify-center rounded-full">
+              <Star className="h-6 w-6" />
+            </div>
+            <div className="text-2xl font-bold mb-1">{user.totalXp}</div>
+            <div className="text-sm text-gray-600">Total XP</div>
+          </Card>
+
+          <Card className="p-6 text-center">
+            <div className="w-12 h-12 bg-blue-100 text-blue-600 mx-auto mb-3 flex items-center justify-center rounded-full">
+              <Trophy className="h-6 w-6" />
+            </div>
+            <div className="text-2xl font-bold mb-1">{user.level}</div>
+            <div className="text-sm text-gray-600">Current Level</div>
+          </Card>
+
+          <Card className="p-6 text-center">
+            <div className="w-12 h-12 bg-purple-100 text-purple-600 mx-auto mb-3 flex items-center justify-center rounded-full">
+              <BookOpen className="h-6 w-6" />
+            </div>
+            <div className="text-2xl font-bold mb-1">{user.achievements.length}</div>
+            <div className="text-sm text-gray-600">Achievements</div>
+          </Card>
+        </div>
+
+        {/* Recent Achievements */}
+        <Card className="p-6">
+          <h3 className="text-2xl font-semibold mb-6">Recent Achievements</h3>
+          
+          {user.achievements.length > 0 ? (
+            <div className="space-y-4">
+              {user.achievements.slice(-3).map((achievement) => (
+                <div key={achievement.id} className="flex items-center gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="text-3xl">{achievement.icon}</div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold">{achievement.name}</h4>
+                    <p className="text-sm text-gray-600">{achievement.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge className="bg-yellow-100 text-yellow-800">
+                      +{achievement.xpReward} XP
+                    </Badge>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(achievement.unlockedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No achievements yet</p>
+              <p className="text-sm">Start reading articles to earn your first achievement!</p>
+            </div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
