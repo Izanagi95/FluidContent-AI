@@ -82,7 +82,8 @@ const OnboardingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Sparkles className="h-8 w-8 text-primary" />
+              {/* <Sparkles className="h-8 w-8 text-primary" /> */}
+              <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
               <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
             </div>
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

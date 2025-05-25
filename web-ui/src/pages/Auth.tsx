@@ -84,7 +84,8 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Sparkles className="h-8 w-8 text-primary" />
+            <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
+            {/* <Sparkles className="h-8 w-8 text-primary" /> */}
             <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
           </div>
           <p className="text-gray-600">Welcome back, {getRoleTitle()}</p>

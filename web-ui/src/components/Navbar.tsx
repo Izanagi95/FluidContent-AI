@@ -97,15 +97,16 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <Sparkles className="h-8 w-8 text-primary" />
+              {/* <Sparkles className="h-8 w-8 text-primary" /> */}
+              <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
               <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
             </Link>
-            {isAuthenticated && (
+            {/* {isAuthenticated && (
               <Badge className="bg-primary/10 text-primary border-primary/20 hidden sm:flex">
                 <RoleIcon className="h-3 w-3 mr-1" />
                 {getRoleTitle()}
               </Badge>
-            )}
+            )} */}
           </div>
 
           {/* Desktop Navigation */}
@@ -132,14 +133,14 @@ const Navbar = () => {
                   );
                 })}
                 
-                <Button 
+                {/* <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={toggleTheme}
                   className="flex items-center gap-2"
                 >
                   {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </Button>
+                </Button> */}
 
                 <Button 
                   variant="outline" 
@@ -173,13 +174,13 @@ const Navbar = () => {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center gap-2">
-            <Button 
+            {/* <Button 
               variant="ghost" 
               size="sm"
               onClick={toggleTheme}
             >
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
+            </Button> */}
             <Button
               variant="ghost"
               size="sm"

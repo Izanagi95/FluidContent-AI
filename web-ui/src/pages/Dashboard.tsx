@@ -276,10 +276,10 @@ const Dashboard = () => {
                   />
                 </label>
               </Button>
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <Star className="h-4 w-4 mr-2" />
                 Add Interest Tags
-              </Button>
+              </Button> */}
             </div>
             <Button className="bg-gradient-primary">Save Draft</Button>
           </div>

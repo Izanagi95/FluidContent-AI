@@ -49,7 +49,8 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Sparkles className="h-8 w-8 text-primary" />
+            {/* <Sparkles className="h-8 w-8 text-primary" /> */}
+            <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
             <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
           </div>
           <div className="flex gap-4">
@@ -159,7 +160,8 @@ const Index = () => {
       <footer className="container mx-auto px-4 py-8 border-t">
         <div className="flex justify-center items-center">
           <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-            <Sparkles className="h-5 w-5" />
+            {/* <Sparkles className="h-5 w-5" /> */}
+            <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-10 w-10" />
             <span>© 2024 FluidContent AI. All rights reserved.</span>
           </div>
         </div>

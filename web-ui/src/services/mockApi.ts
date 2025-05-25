@@ -106,7 +106,7 @@ const mockArticles: Article[] = [
     `,
     author: {
       name: 'Sarah Johnson',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop'
+      avatar: 'https://images.unsplash.com/photo-1742234857006-ceaba909665c?w=100&h=100&fit=crop'
     },
     publishDate: '2024-01-25',
     readTime: 8,
