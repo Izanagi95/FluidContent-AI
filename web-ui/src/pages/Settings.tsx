@@ -269,7 +269,7 @@ const Settings = () => {
             <div className="pt-4 border-t">
               <p className="text-sm text-gray-600 mb-2">Version 1.0.0</p>
               <p className="text-xs text-gray-500">
-                © 2024 FluidContent AI. All rights reserved.
+                © 2025 FluidContent AI. All rights reserved.
               </p>
             </div>
           </div>

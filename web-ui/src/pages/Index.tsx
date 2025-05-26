@@ -162,7 +162,7 @@ const Index = () => {
           <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
             {/* <Sparkles className="h-5 w-5" /> */}
             <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-10 w-10" />
-            <span>© 2024 FluidContent AI. All rights reserved.</span>
+            <span>© 2025 FluidContent AI. All rights reserved.</span>
           </div>
         </div>
       </footer>
