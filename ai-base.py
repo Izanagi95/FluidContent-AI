@@ -1,3 +1,4 @@
+import json
 import os
 from fastapi import FastAPI, HTTPException, Body
 from pydantic import BaseModel, Field
@@ -10,7 +11,7 @@ import uvicorn
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-
+# INPUT
 class UserProfile(BaseModel):
     user_id: str
     name: Optional[str] = Field(default=None, description="Nome dell'utente, se disponibile")
@@ -27,44 +28,15 @@ class ProcessRequest(BaseModel):
     profile: UserProfile
     content: ContentInput
 
-# --- I tuoi dati Python ---
-INPUT_DATA_1 = {
-    "profile": {
-        "user_id": "user-singer",
-        "name": "Taylor",
-        "age": 18,
-        "interests": ["musica", "viaggi avventura", "cucina vegetariana", "gatti"],
-        "preferences": {
-            "tone": "entusiasta e informativo",
-            "length": "conciso",
-            "format_preference": "articoli con punti elenco"
-        }
-    },
-    "content": {
-        "title": "Il Futuro dell'Energia Solare: Innovazioni e Sfide",
-        "description": "Un'analisi approfondita delle nuove tecnologie nel campo solare e degli ostacoli alla loro adozione su larga scala.",
-        "original_text": "L'energia solare rappresenta una delle pietre miliari nella transizione verso un futuro energetico più sostenibile. Negli ultimi anni, abbiamo assistito a progressi significativi nella tecnologia dei pannelli fotovoltaici, con un aumento dell'efficienza e una riduzione dei costi. Tuttavia, sfide come l'intermittenza della produzione e lo stoccaggio dell'energia rimangono cruciali. Le smart grid e le soluzioni di accumulo innovative, come le batterie al flusso, stanno emergendo come risposte promettenti. L'integrazione di politiche di incentivazione governative e la sensibilizzazione pubblica sono altresì fondamentali per accelerare l'adozione di questa fonte rinnovabile..."
-    }
-}
+# OUTPUT
+class ProcessedContent(BaseModel):
+    adapted_text: str = Field(..., description="Il testo completamente adattato.")
+    key_takeaways: Optional[List[str]] = Field(default=None, description="I punti chiave estratti.")
+    suggested_title: Optional[str] = Field(default=None, description="Il nuovo titolo suggerito.")
+    sentiment_analysis: Optional[str] = Field(default=None, description="L'analisi del sentiment.")
 
-INPUT_DATA_2 = {
-    "profile": {
-        "user_id": "user-gabbosaur",
-        "name": "Gabbo",
-        "age": 31,
-        "interests": ["artificial intelligence", "calisthenics", "photography", "gaming", "naruto"],
-        "preferences": {
-            "tone": "entusiasta e informativo",
-            "length": "conciso",
-            "format_preference": "articoli con punti elenco"
-        }
-    },
-    "content": {
-        "title": "Il Futuro dell'Energia Solare: Innovazioni e Sfide",
-        "description": "Un'analisi approfondita delle nuove tecnologie nel campo solare e degli ostacoli alla loro adozione su larga scala.",
-        "original_text": "L'energia solare rappresenta una delle pietre miliari nella transizione verso un futuro energetico più sostenibile. Negli ultimi anni, abbiamo assistito a progressi significativi nella tecnologia dei pannelli fotovoltaici, con un aumento dell'efficienza e una riduzione dei costi. Tuttavia, sfide come l'intermittenza della produzione e lo stoccaggio dell'energia rimangono cruciali. Le smart grid e le soluzioni di accumulo innovative, come le batterie al flusso, stanno emergendo come risposte promettenti. L'integrazione di politiche di incentivazione governative e la sensibilizzazione pubblica sono altresì fondamentali per accelerare l'adozione di questa fonte rinnovabile..."
-    }
-}
+class ErrorResponse(BaseModel):
+    detail: str
 
 SYSTEM_PROMPT_TEMPLATE = """
 Sei un assistente AI avanzato specializzato nella trasformazione e adattamento di contenuti digitali per FluidContent AI.
@@ -106,55 +78,41 @@ REGOLE IMPORTANTI:
 - Se una preferenza utente è in conflitto con la natura del contenuto, usa il tuo miglior giudizio per trovare un equilibrio o segnalalo.
 - L'output "adapted_text" DEVE essere il testo completo e pronto per essere mostrato all'utente.
 """
+def generate_final_system_prompt(request_data: ProcessRequest, template: str) -> str:
+    """
+    Genera il prompt di sistema finale formattando il template con i dati
+    estratti dall'oggetto ProcessRequest.
+    """
+    user_profile = request_data.profile
+    content_input = request_data.content
 
-INPUT = INPUT_DATA_2
+    # Preparazione dei valori per il .format(), gestendo i valori opzionali
+    # UserProfile fields
+    user_name_str = user_profile.name if user_profile.name is not None else "Utente"
+    user_age_str = str(user_profile.age) if user_profile.age is not None else "Non specificata"
 
-# Estrazione dei dati da INPUT
-user_profile_data = INPUT["profile"]
-content_data = INPUT["content"]
+    # user_profile.interests è una lista, default_factory=list assicura che sia [] se non fornito
+    user_interests_str = ", ".join(user_profile.interests) if user_profile.interests else "Nessuno specificato"
 
-# Preparazione dei valori per il .format()
-user_name_str = user_profile_data.get("name", "Utente")
+    # user_profile.preferences è un dict, default_factory=dict assicura che sia {} se non fornito
+    user_preferences_str = str(user_profile.preferences) if user_profile.preferences else "Nessuna specificata"
 
-# Gestione dell'età (opzionale nel dizionario INPUT)
-user_age_val = user_profile_data.get("age") # Usa .get() per evitare KeyError se "age" non c'è
-user_age_str = str(user_age_val) if user_age_val is not None else "Non specificata"
+    # ContentInput fields
+    content_title_str = content_input.title # Campo obbligatorio
+    content_description_str = content_input.description if content_input.description is not None else "Nessuna descrizione fornita"
+    original_content_text_str = content_input.original_text # Campo obbligatorio
 
-user_interests_str = ", ".join(user_profile_data.get("interests", [])) if user_profile_data.get("interests") else "Nessuno specificato"
-# Usato .get("interests", []) per fornire una lista vuota di default se "interests" non esiste,
-# così .join non fallisce.
-
-user_preferences_str = str(user_profile_data.get("preferences", {})) if user_profile_data.get("preferences") else "Nessuna specificata"
-# Usato .get("preferences", {}) per fornire un dizionario vuoto di default.
-
-content_title_str = content_data.get("title", "Nessun titolo fornito")
-content_description_str = content_data.get("description") if content_data.get("description") else "Nessuna descrizione fornita"
-original_content_text_str = content_data.get("original_text", "Nessun contenuto fornito")
-
-
-# Composizione del prompt finale
-final_system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
-    user_name=user_name_str,
-    user_age=user_age_str,
-    user_interests=user_interests_str,
-    user_preferences=user_preferences_str,
-    content_title=content_title_str,
-    content_description=content_description_str,
-    original_content_text=original_content_text_str
-)
-
-# print(final_system_prompt)
-
-
-class ProcessedContent(BaseModel):
-    adapted_text: str = Field(..., description="Il testo completamente adattato.")
-    key_takeaways: Optional[List[str]] = Field(default=None, description="I punti chiave estratti.")
-    suggested_title: Optional[str] = Field(default=None, description="Il nuovo titolo suggerito.")
-    sentiment_analysis: Optional[str] = Field(default=None, description="L'analisi del sentiment.")
-
-class ErrorResponse(BaseModel):
-    detail: str
-
+    # Composizione del prompt finale
+    final_prompt = template.format(
+        user_name=user_name_str,
+        user_age=user_age_str,
+        user_interests=user_interests_str,
+        user_preferences=user_preferences_str,
+        content_title=content_title_str,
+        content_description=content_description_str,
+        original_content_text=original_content_text_str
+    )
+    return final_prompt
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -170,7 +128,7 @@ async def read_root():
 
 @app.post(
     "/process-content/",
-    response_model=ProcessedContent,
+    # response_model=ProcessedContent,
     responses={500: {"model": ErrorResponse}, 400: {"model": ErrorResponse}}
 )
 async def process_content_endpoint(request_data: ProcessRequest = Body(...)):
@@ -180,7 +138,7 @@ async def process_content_endpoint(request_data: ProcessRequest = Body(...)):
     client = genai.Client(api_key=GEMINI_API_KEY)
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=final_system_prompt,
+        contents=generate_final_system_prompt(request_data, SYSTEM_PROMPT_TEMPLATE),
         config={
             "response_mime_type": "application/json",
             "response_schema": ProcessedContent,
@@ -188,7 +146,16 @@ async def process_content_endpoint(request_data: ProcessRequest = Body(...)):
     )
     # Use the response as a JSON string.
     # print(response.text)
-    return response.text
+
+    # Deserializza la stringa JSON in un dizionario Python
+    try:
+        response_data_dict = json.loads(response.text)
+    except json.JSONDecodeError:
+        # Logga l'errore e la risposta per il debug
+        print(f"Errore nella deserializzazione JSON da Gemini. Risposta: {response.text}")
+        raise HTTPException(status_code=500, detail="Failed to parse JSON response from Gemini API.")
+
+    return response_data_dict
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)
 if __name__ == "__main__":
