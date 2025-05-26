@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Search, Filter, Plus, BookOpen, TrendingUp, Users, Star, 
+import {
+  Search, Filter, Plus, BookOpen, TrendingUp, Users, Star,
   Upload, Edit, BarChart3, Heart, MessageCircle,
   Play, Camera, Video, FileText, X
 } from "lucide-react";
@@ -21,7 +21,7 @@ const Dashboard = () => {
   useEffect(() => {
     const role = localStorage.getItem('userRole') || 'consumer';
     setUserRole(role);
-    
+
     // Check authentication
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
@@ -69,26 +69,26 @@ const Dashboard = () => {
             Advanced Filters
           </Button>
         </div>
-        
+
         {/* Selected Filters */}
         <div className="flex gap-2 mb-3 flex-wrap">
           {selectedFilters.map((filter) => (
             <Badge key={filter} className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1">
               {filter}
-              <X 
-                className="h-3 w-3 cursor-pointer hover:text-red-500" 
+              <X
+                className="h-3 w-3 cursor-pointer hover:text-red-500"
                 onClick={() => removeFilter(filter)}
               />
             </Badge>
           ))}
         </div>
-        
+
         {/* Available Filters */}
         <div className="flex gap-2 flex-wrap">
           {availableFilters.filter(f => !selectedFilters.includes(f)).map((filter) => (
-            <Badge 
-              key={filter} 
-              variant="outline" 
+            <Badge
+              key={filter}
+              variant="outline"
               className="cursor-pointer hover:bg-primary/5"
               onClick={() => addFilter(filter)}
             >
@@ -102,7 +102,7 @@ const Dashboard = () => {
       <div className="grid gap-6">
         <Card className="p-6 hover-lift">
           <div className="flex items-start gap-4">
-            <img 
+            <img
               src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=100&h=100&fit=crop"
               alt="Content thumbnail"
               className="w-16 h-16 rounded-lg object-cover"
@@ -114,7 +114,7 @@ const Dashboard = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Exploring Rome: A Fitness Enthusiast's Guide</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Discover the eternal city with a focus on outdoor fitness opportunities, 
+                Discover the eternal city with a focus on outdoor fitness opportunities,
                 from morning runs along the Tiber to calisthenics in Villa Borghese...
               </p>
               <div className="flex items-center justify-between">
@@ -137,7 +137,7 @@ const Dashboard = () => {
 
         <Card className="p-6 hover-lift">
           <div className="flex items-start gap-4">
-            <img 
+            <img
               src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=100&h=100&fit=crop"
               alt="Content thumbnail"
               className="w-16 h-16 rounded-lg object-cover"
@@ -149,7 +149,7 @@ const Dashboard = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">AI in Modern Web Development</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Learn how artificial intelligence is revolutionizing web development 
+                Learn how artificial intelligence is revolutionizing web development
                 with practical examples and hands-on exercises...
               </p>
               <div className="flex items-center justify-between">
@@ -257,7 +257,7 @@ const Dashboard = () => {
         <h2 className="text-2xl font-semibold mb-6">Quick Create</h2>
         <div className="space-y-4">
           <Input placeholder="Article title..." className="text-lg" />
-          <Textarea 
+          <Textarea
             placeholder="Start writing your content here..."
             className="min-h-[200px] resize-none"
           />
@@ -345,48 +345,49 @@ const Dashboard = () => {
           <h2 className="text-2xl font-semibold">Recent Uploads</h2>
           <Button onClick={() => navigate('/my-videos')}>View All</Button>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="relative group">
-            <img 
-              src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=200&h=150&fit=crop"
-              alt="Mountain landscape"
+            <img
+              src="https://colosseumrometickets.com/wp-content/uploads/2023/08/Colosseum-Sunset-Tour-2-1.jpg"
+              alt="Colosseum in Rome"
               className="w-full h-24 object-cover rounded-lg"
             />
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <div className="text-white text-center text-xs">
-                <p className="font-medium">Mountain View</p>
-                <p>23 uses • $115.50</p>
+                <p className="font-medium">Colosseum Sunset</p>
+                <p>30 uses • $135.00</p>
               </div>
             </div>
           </div>
 
           <div className="relative group">
-            <img 
-              src="https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=200&h=150&fit=crop"
-              alt="Ocean waves"
+            <img
+              src="https://i.ytimg.com/vi/4LuBVXWpDss/hqdefault.jpg"
+              alt="Burj Khalifa Aerial"
               className="w-full h-24 object-cover rounded-lg"
             />
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <div className="text-white text-center text-xs">
-                <p className="font-medium">Ocean Waves</p>
-                <p>45 uses • $202.30</p>
+                <p className="font-medium">Burj Khalifa Aerial</p>
+                <p>42 uses • $198.75</p>
               </div>
             </div>
           </div>
 
           <div className="relative group">
-            <div className="w-full h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Video className="h-6 w-6 text-white" />
-            </div>
+            <img
+              src="https://www.boletomachupicchu.com/gutblt/wp-content/uploads/2024/10/machu-picchu-turistas-vista-panoramica-full.jpg"
+              alt="Machu Picchu"
+              className="w-full h-24 object-cover rounded-lg"
+            />
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <div className="text-white text-center text-xs">
-                <p className="font-medium">City Timelapse</p>
-                <p>15 uses • $67.20</p>
+                <p className="font-medium">Machu Picchu Morning</p>
+                <p>38 uses • $172.40</p>
               </div>
             </div>
           </div>
-
           <label className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg h-24 flex items-center justify-center cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
             <Plus className="h-6 w-6 text-gray-400" />
             <input
@@ -423,5 +424,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 
 export default Dashboard;

@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  Search, Upload, Play, Eye, DollarSign, 
-  Video, TrendingUp, Calendar, BarChart3 
+import {
+  Search, Upload, Play, Eye, DollarSign,
+  Video, TrendingUp, Calendar, BarChart3
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -33,12 +33,12 @@ const MyVideos = () => {
     // Check authentication and role
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     const userRole = localStorage.getItem('userRole');
-    
+
     if (!isAuthenticated) {
       navigate('/auth');
       return;
     }
-    
+
     if (userRole !== 'provider') {
       navigate('/dashboard');
       return;
@@ -49,51 +49,111 @@ const MyVideos = () => {
       setVideos([
         {
           id: '1',
-          title: 'Mountain Sunrise Timelapse',
-          filename: 'mountain_sunrise_4k.mp4',
-          uploadDate: '2024-01-20',
-          duration: '2:30',
-          fileSize: '450 MB',
-          usageCount: 23,
-          earnings: 115.50,
-          tags: ['Nature', 'Mountain', 'Sunrise', 'Timelapse'],
-          thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop'
+          title: 'Sunset Over the Colosseum',
+          filename: 'colosseum_sunset_rome.mp4',
+          uploadDate: '2024-02-01',
+          duration: '1:20',
+          fileSize: '280 MB',
+          usageCount: 30,
+          earnings: 135.00,
+          tags: ['Rome', 'Colosseum', 'Sunset', 'Italy', 'Historic'],
+          thumbnail: 'https://colosseumrometickets.com/wp-content/uploads/2023/08/Colosseum-Sunset-Tour-2-1.jpg'
         },
         {
           id: '2',
-          title: 'City Traffic at Night',
-          filename: 'city_traffic_night.mp4',
-          uploadDate: '2024-01-18',
-          duration: '1:45',
-          fileSize: '320 MB',
-          usageCount: 15,
-          earnings: 67.20,
-          tags: ['City', 'Traffic', 'Night', 'Urban'],
-          thumbnail: 'https://images.unsplash.com/photo-1519871117077-f4b94463c4ad?w=300&h=200&fit=crop'
+          title: 'Burj Khalifa Aerial View',
+          filename: 'burj_khalifa_drone_dubai.mp4',
+          uploadDate: '2024-01-28',
+          duration: '2:10',
+          fileSize: '400 MB',
+          usageCount: 42,
+          earnings: 198.75,
+          tags: ['Dubai', 'Burj Khalifa', 'Skyscraper', 'Aerial', 'UAE'],
+          thumbnail: 'https://i.ytimg.com/vi/4LuBVXWpDss/hqdefault.jpg'
         },
         {
           id: '3',
-          title: 'Ocean Waves Calm',
-          filename: 'ocean_waves_loop.mp4',
-          uploadDate: '2024-01-15',
-          duration: '0:30',
-          fileSize: '180 MB',
-          usageCount: 45,
-          earnings: 202.30,
-          tags: ['Ocean', 'Waves', 'Relaxing', 'Loop'],
-          thumbnail: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=300&h=200&fit=crop'
+          title: 'Mystical Machu Picchu Morning',
+          filename: 'machu_picchu_morning_timelapse.mp4',
+          uploadDate: '2024-01-25',
+          duration: '1:50',
+          fileSize: '350 MB',
+          usageCount: 38,
+          earnings: 172.40,
+          tags: ['Peru', 'Machu Picchu', 'Mountains', 'Timelapse', 'Inca'],
+          thumbnail: 'https://www.boletomachupicchu.com/gutblt/wp-content/uploads/2024/10/machu-picchu-turistas-vista-panoramica-full.jpg'
         },
         {
           id: '4',
-          title: 'Forest Rain Ambience',
-          filename: 'forest_rain_audio.mp3',
-          uploadDate: '2024-01-12',
-          duration: '10:00',
-          fileSize: '95 MB',
-          usageCount: 12,
-          earnings: 48.60,
-          tags: ['Forest', 'Rain', 'Ambience', 'Audio'],
-          thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&h=200&fit=crop'
+          title: 'The Great Wall',
+          filename: 'great_wall_china_walk.mp4',
+          uploadDate: '2024-01-22',
+          duration: '3:00',
+          fileSize: '500 MB',
+          usageCount: 50,
+          earnings: 225.00,
+          tags: ['China', 'Great Wall', 'Travel', 'Historic', 'Scenic'],
+          thumbnail: 'https://euc7zxtct58.exactdn.com/wp-content/uploads/2023/09/21113054/Great-Wall-of-China-Charity-Trek_2.jpg?strip=all&lossy=1&quality=85&ssl=1'
+        },
+        {
+          id: '5',
+          title: 'Golden Hour at Eiffel Tower',
+          filename: 'eiffel_tower_golden_hour.mp4',
+          uploadDate: '2024-02-05',
+          duration: '1:30',
+          fileSize: '310 MB',
+          usageCount: 36,
+          earnings: 162.00,
+          tags: ['Paris', 'Eiffel Tower', 'Sunset', 'France', 'Landmark'],
+          thumbnail: 'https://images.stockcake.com/public/3/2/6/326c58ff-c6ae-498b-bc3e-0e367e549b45_large/parisian-childhood-joy-stockcake.jpg'
+        },
+        {
+          id: '6',
+          title: 'Taj Mahal Reflection',
+          filename: 'taj_mahal_reflection.mp4',
+          uploadDate: '2024-02-03',
+          duration: '2:00',
+          fileSize: '390 MB',
+          usageCount: 40,
+          earnings: 190.00,
+          tags: ['India', 'Taj Mahal', 'Reflection', 'Architecture', 'Heritage'],
+          thumbnail: 'https://media.tacdn.com/media/attractions-splice-spp-674x446/0e/8f/88/03.jpg'
+        },
+        {
+          id: '7',
+          title: 'Petra by Moonlight',
+          filename: 'petra_moonlight_walk.mp4',
+          uploadDate: '2024-01-30',
+          duration: '1:45',
+          fileSize: '320 MB',
+          usageCount: 27,
+          earnings: 120.50,
+          tags: ['Jordan', 'Petra', 'Moonlight', 'Ruins', 'Desert'],
+          thumbnail: 'https://www.archetravel.com/wp-content/uploads/2020/06/petra-by-night_inside-620x245.jpg'
+        },
+        {
+          id: '8',
+          title: 'Pyramids of Giza Aerial',
+          filename: 'pyramids_giza_drone.mp4',
+          uploadDate: '2024-01-26',
+          duration: '2:20',
+          fileSize: '420 MB',
+          usageCount: 48,
+          earnings: 210.00,
+          tags: ['Egypt', 'Pyramids', 'Giza', 'Drone', 'Desert'],
+          thumbnail: 'https://images.stockcake.com/public/e/8/b/e8bc34cd-6492-4728-91f5-ac5ad757b0da_large/majestic-pyramid-view-stockcake.jpg'
+        },
+        {
+          id: '9',
+          title: 'Angkor Wat Sunrise',
+          filename: 'angkor_wat_sunrise.mp4',
+          uploadDate: '2024-01-23',
+          duration: '1:55',
+          fileSize: '360 MB',
+          usageCount: 33,
+          earnings: 155.25,
+          tags: ['Cambodia', 'Angkor Wat', 'Sunrise', 'Temple', 'Ancient'],
+          thumbnail: 'https://media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/13/2b/cc/9f.jpg'
         }
       ]);
       setLoading(false);
@@ -107,7 +167,7 @@ const MyVideos = () => {
 
   const totalEarnings = videos.reduce((sum, video) => sum + video.earnings, 0);
   const totalUsage = videos.reduce((sum, video) => sum + video.usageCount, 0);
-  const topPerformer = videos.reduce((top, video) => 
+  const topPerformer = videos.reduce((top, video) =>
     video.earnings > top.earnings ? video : top, videos[0] || { earnings: 0, title: 'None' }
   );
 
@@ -179,7 +239,7 @@ const MyVideos = () => {
               <Video className="h-8 w-8 text-blue-500" />
             </div>
           </Card>
-          
+
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -189,7 +249,7 @@ const MyVideos = () => {
               <DollarSign className="h-8 w-8 text-green-500" />
             </div>
           </Card>
-          
+
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -199,7 +259,7 @@ const MyVideos = () => {
               <Eye className="h-8 w-8 text-purple-500" />
             </div>
           </Card>
-          
+
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -230,8 +290,8 @@ const MyVideos = () => {
           {filteredVideos.map((video) => (
             <Card key={video.id} className="overflow-hidden hover-lift">
               <div className="relative">
-                <img 
-                  src={video.thumbnail} 
+                <img
+                  src={video.thumbnail}
                   alt={video.title}
                   className="w-full h-48 object-cover"
                 />
@@ -242,11 +302,11 @@ const MyVideos = () => {
                   {video.duration}
                 </div>
               </div>
-              
+
               <div className="p-4">
                 <h3 className="font-semibold mb-2 line-clamp-2">{video.title}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{video.filename}</p>
-                
+
                 <div className="flex flex-wrap gap-1 mb-3">
                   {video.tags.slice(0, 3).map((tag) => (
                     <Badge key={tag} variant="outline" className="text-xs">
@@ -259,7 +319,7 @@ const MyVideos = () => {
                     </Badge>
                   )}
                 </div>
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Uploaded:</span>
@@ -281,7 +341,7 @@ const MyVideos = () => {
                     <span className="text-green-600">${video.earnings.toFixed(2)}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-2 mt-4">
                   <Button size="sm" variant="outline" className="flex-1">
                     <BarChart3 className="h-4 w-4 mr-1" />
@@ -295,7 +355,7 @@ const MyVideos = () => {
               </div>
             </Card>
           ))}
-          
+
           {filteredVideos.length === 0 && (
             <div className="col-span-full">
               <Card className="p-12 text-center">

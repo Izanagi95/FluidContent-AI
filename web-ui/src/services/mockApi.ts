@@ -54,21 +54,21 @@ export interface LeaderboardEntry {
 // Mock data
 const mockUser: User = {
   id: '1',
-  name: 'John Doe',
-  email: 'john@example.com',
+  name: 'Gabriele',
+  email: 'gabbo@ai.com',
   role: (localStorage.getItem('userRole') as any) || 'consumer',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-  level: 7,
-  xp: 2450,
-  xpToNext: 550,
-  totalXp: 2450,
+  avatar: 'https://forums.terraria.org/data/avatars/h/197/197802.jpg',
+  level: 6,
+  xp: 619,
+  xpToNext: 81,
+  totalXp: 619,
   achievements: [
     {
       id: '1',
       name: 'First Steps',
       description: 'Read your first article',
       icon: '📖',
-      unlockedAt: '2024-01-15',
+      unlockedAt: '2025-05-15',
       xpReward: 50
     },
     {
@@ -76,11 +76,11 @@ const mockUser: User = {
       name: 'Speed Reader',
       description: 'Read 10 articles in one day',
       icon: '⚡',
-      unlockedAt: '2024-01-20',
+      unlockedAt: '2025-05-20',
       xpReward: 200
     }
   ],
-  joinDate: '2024-01-01'
+  joinDate: '2025-05-05'
 };
 
 const mockArticles: Article[] = [
@@ -131,8 +131,8 @@ const mockArticles: Article[] = [
       <p>Start small with core components and gradually expand. Ensure buy-in from stakeholders and maintain comprehensive documentation.</p>
     `,
     author: {
-      name: 'Mike Chen',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
+      name: 'Paolo',
+      avatar: 'https://www.plai-accelerator.com/content/uploads/2024/05/ruscitti-e1715625676685.jpg'
     },
     publishDate: '2024-01-23',
     readTime: 12,
@@ -173,8 +173,8 @@ const mockArticles: Article[] = [
 const mockLeaderboard: LeaderboardEntry[] = [
   {
     id: '1',
-    name: 'Alex Rodriguez',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
+    name: 'Stefano',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2024/05/WhatsApp-Image-2024-05-30-at-22.20.28-e1717100490694.jpeg',
     level: 15,
     totalXp: 8750,
     articlesRead: 127,
@@ -182,40 +182,67 @@ const mockLeaderboard: LeaderboardEntry[] = [
   },
   {
     id: '2',
-    name: 'Maria Santos',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop',
-    level: 12,
+    name: 'Antonio',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2024/05/Antonio-Porro-AD-Gruppo-Mondadori-e1716021576318.jpeg',
+    level: 13,
     totalXp: 6890,
     articlesRead: 98,
     streak: 23
   },
   {
     id: '3',
-    name: 'David Kim',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-    level: 11,
+    name: 'Andrea',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2024/04/Sito_Santagata.jpg',
+    level: 12,
     totalXp: 5940,
     articlesRead: 85,
     streak: 18
   },
   {
     id: '4',
-    name: 'Lisa Chen',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
-    level: 10,
+    name: 'Margherita',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2025/05/corini-foto_346.jpg',
+    level: 12,
     totalXp: 5200,
     articlesRead: 76,
     streak: 12
   },
   {
     id: '5',
-    name: 'John Doe',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-    level: 7,
+    name: 'Caterina',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2025/03/caterina-rutschmann_346_ok.png',
+    level: 9,
     totalXp: 2450,
     articlesRead: 34,
     streak: 8
-  }
+  },
+  {
+    id: '6',
+    name: 'Francesco',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2025/05/francesco_cavallo_346.jpeg',
+    level: 7,
+    totalXp: 1337,
+    articlesRead: 11,
+    streak: 3
+  },
+  {
+    id: '7',
+    name: 'Gabriele',
+    avatar: 'https://forums.terraria.org/data/avatars/h/197/197802.jpg',
+    level: 6,
+    totalXp: 619,
+    articlesRead: 8,
+    streak: 2
+  },
+  {
+    id: '8',
+    name: 'Daniele',
+    avatar: 'https://www.plai-accelerator.com/content/uploads/2024/05/giovannone_daniele_2.jpg',
+    level: 3,
+    totalXp: 322,
+    articlesRead: 6,
+    streak: 1
+  },
 ];
 
 // Mock API functions

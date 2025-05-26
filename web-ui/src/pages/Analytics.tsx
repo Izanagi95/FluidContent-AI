@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, Eye, Heart, MessageCircle, Users, 
+import {
+  TrendingUp, Eye, Heart, MessageCircle, Users,
   Calendar, BarChart3, DollarSign, Target,
   ArrowUp, ArrowDown, Download
 } from "lucide-react";
@@ -50,12 +50,12 @@ const Analytics = () => {
     // Check authentication
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     const userRole = localStorage.getItem('userRole');
-    
+
     if (!isAuthenticated) {
       navigate('/auth');
       return;
     }
-    
+
     if (userRole === 'consumer') {
       navigate('/dashboard');
       return;
@@ -113,24 +113,24 @@ const Analytics = () => {
             }
           },
           topContent: [
-            { id: '1', title: 'Mountain Sunrise Timelapse', views: 23, likes: 0, earnings: 115.50 },
-            { id: '2', title: 'Ocean Waves Calm', views: 45, likes: 0, earnings: 202.30 },
-            { id: '3', title: 'City Traffic Night', views: 15, likes: 0, earnings: 67.20 }
+            { id: '1', title: 'Colosseum Sunset', views: 30, likes: 0, earnings: 135.00 },
+            { id: '2', title: 'Burj Khalifa Aerial', views: 42, likes: 0, earnings: 198.75 },
+            { id: '3', title: 'Machu Picchu Morning', views: 38, likes: 0, earnings: 172.40 }
           ],
           audience: {
             demographics: [
-              { category: 'Nature Content', percentage: 45 },
-              { category: 'Urban Scenes', percentage: 30 },
-              { category: 'Abstract/Artistic', percentage: 15 },
-              { category: 'Lifestyle', percentage: 10 }
+              { category: 'Historic Landmarks', percentage: 40 },
+              { category: 'Modern Architecture', percentage: 30 },
+              { category: 'Mountain Landscapes', percentage: 20 },
+              { category: 'Cultural Sites', percentage: 10 }
             ],
-            interests: ['Nature', 'Timelapses', 'Urban', 'Relaxation', 'Background Videos']
+            interests: ['World Wonders', 'Drone Footage', 'Cultural Heritage', 'Aerial Views', 'Time of Day Scenes']
           },
           recommendations: [
-            'Nature content performs best - consider uploading more landscapes',
-            'Timelapse videos have higher demand and earnings potential',
-            'Urban night scenes are trending - great opportunity',
-            'Consider creating loopable content for better usage rates'
+            'Historic and iconic landmarks perform well – keep exploring ancient and world-famous sites',
+            'Drone and aerial shots are among top-performing formats',
+            'Sunset and golden hour footage draws higher engagement',
+            'Include metadata with historical or cultural context to boost discoverability'
           ]
         });
       }
@@ -175,8 +175,8 @@ const Analytics = () => {
               <Download className="h-4 w-4" />
               Export Report
             </Button>
-            <select 
-              value={timeRange} 
+            <select
+              value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
               className="px-3 py-2 border rounded-md bg-background"
             >
@@ -205,7 +205,7 @@ const Analytics = () => {
                 </div>
                 <p className="text-2xl font-bold">{analytics.metrics.totalViews.toLocaleString()}</p>
               </Card>
-              
+
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -219,7 +219,7 @@ const Analytics = () => {
                 </div>
                 <p className="text-2xl font-bold">{analytics.metrics.totalLikes.toLocaleString()}</p>
               </Card>
-              
+
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ const Analytics = () => {
               </Card>
             </>
           )}
-          
+
           {isProvider && (
             <>
               <Card className="p-6">
@@ -247,7 +247,7 @@ const Analytics = () => {
                 </div>
                 <p className="text-2xl font-bold">${analytics.metrics.totalEarnings.toFixed(2)}</p>
               </Card>
-              
+
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ const Analytics = () => {
                 </div>
                 <p className="text-2xl font-bold">{analytics.topContent.reduce((sum, item) => sum + item.views, 0)}</p>
               </Card>
-              
+
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -271,7 +271,7 @@ const Analytics = () => {
               </Card>
             </>
           )}
-          
+
           <Card className="p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ const Analytics = () => {
                     <span>{demo.percentage}%</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-gradient-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${demo.percentage}%` }}
                     ></div>
@@ -340,7 +340,7 @@ const Analytics = () => {
                 </div>
               ))}
             </div>
-            
+
             <div className="mt-6">
               <h4 className="font-medium mb-3">
                 {isProvider ? 'Popular Tags' : 'Top Interests'}
