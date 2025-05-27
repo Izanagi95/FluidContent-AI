@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,55 +22,96 @@ const Auth = () => {
     name: ''
   });
 
-  // Mock authentication function
-  const mockAuth = async (isLogin: boolean) => {
-    setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful authentication
-    const userRole = localStorage.getItem('userRole') || 'consumer';
-    const mockUser = {
-      id: '1',
+const BASE_URL = 'http://localhost:8000/api'; // adjust this based on your FastAPI host
+
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!formData.email || !formData.password) {
+    toast.error('Please fill in all fields');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const response = await axios.post(`${BASE_URL}/login`, {
       email: formData.email,
-      name: formData.name || 'User',
-      role: userRole
-    };
-    
-    localStorage.setItem('user', JSON.stringify(mockUser));
+      password: formData.password,
+    });
+
+    const user = response.data.user;
+    localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('isAuthenticated', 'true');
-    
-    toast.success(isLogin ? 'Successfully logged in!' : 'Account created successfully!');
+
+    toast.success('Logged in successfully!');
     navigate('/dashboard');
+  } catch (error: any) {
+    const detail = error.response?.data?.detail;
+
+    if (Array.isArray(detail)) {
+      // Handle FastAPI validation errors
+      const messages = detail.map((err: any) => {
+        const field = err.loc?.[1] ?? 'field';
+        return `${field}: ${err.msg}`;
+      });
+      toast.error(messages.join('\n'));
+    } else if (typeof detail === 'string') {
+      toast.error(detail);
+    } else {
+      toast.error('Login failed');
+    }
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.email || !formData.password) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    await mockAuth(true);
-  };
+  if (!formData.email || !formData.password || !formData.name) {
+    toast.error('Please fill in all fields');
+    return;
+  }
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.email || !formData.password || !formData.name) {
-      toast.error('Please fill in all fields');
-      return;
+  if (formData.password !== formData.confirmPassword) {
+    toast.error('Passwords do not match');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const response = await axios.post(`${BASE_URL}/signup`, {
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
+    });
+
+    const user = response.data.user;
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('isAuthenticated', 'true');
+
+    toast.success('Account created successfully!');
+    navigate('/dashboard');
+  } catch (error: any) {
+    const detail = error.response?.data?.detail;
+
+    if (Array.isArray(detail)) {
+      // Handle FastAPI validation errors
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const messages = detail.map((err: any) => {
+        const field = err.loc?.[1] ?? 'field';
+        return `${field}: ${err.msg}`;
+      });
+      toast.error(messages.join('\n'));
+    } else if (typeof detail === 'string') {
+      toast.error(detail);
+    } else {
+      toast.error('Signup failed');
     }
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    await mockAuth(false);
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const userRole = localStorage.getItem('userRole') || 'consumer';
   const getRoleTitle = () => {
@@ -77,6 +120,10 @@ const Auth = () => {
       case 'provider': return 'Content Provider';
       default: return 'Content Consumer';
     }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (

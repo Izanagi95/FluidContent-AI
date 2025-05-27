@@ -1,15 +1,32 @@
 import json
 import os
-from fastapi import FastAPI, HTTPException, Body
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Body, UploadFile, File, Form
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
 from google import genai
+from fastapi.middleware.cors import CORSMiddleware
+
 import uvicorn
 
 # Carica le variabili d'ambiente dal file .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# --- Inizializzazione dell'app FastAPI ---
+app = FastAPI(
+    title="FluidContent AI Backend",
+    description="API per elaborare e adattare contenuti usando Gemini AI.",
+    version="0.1.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or use specific origin for security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # INPUT
 class UserProfile(BaseModel):
@@ -37,6 +54,49 @@ class ProcessedContent(BaseModel):
 
 class ErrorResponse(BaseModel):
     detail: str
+
+
+class SignupRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+@app.post("/api/signup")
+def signup(data: SignupRequest):
+    # Implement user creation logic and password hashing
+    # Return mock response for now
+    return {"user": {"id": 1, "email": data.email, "name": data.name}}
+
+@app.post("/api/login")
+def login(data: LoginRequest):
+    # Implement user verification and password check
+    # Return mock response for now
+    return {"user": {"id": 1, "email": data.email, "name": "John Doe"}}
+
+
+@app.post("/save-draft")
+async def save_draft(
+    title: str = Form(...),
+    content: str = Form(...),
+    images: List[UploadFile] = File(default=[])
+):
+    print(f"Title: {title}")
+    print(f"Content: {content}")
+    print(f"Received {len(images)} images")
+
+    # TODO - save in DB
+    os.makedirs("uploads", exist_ok=True)
+    for image in images:
+        contents = await image.read()
+        with open(f"uploads/{image.filename}", "wb") as f:
+            f.write(contents)
+
+    return {"status": "draft saved"}
+
 
 SYSTEM_PROMPT_TEMPLATE = """
 Sei un assistente AI avanzato specializzato nella trasformazione e adattamento di contenuti digitali per FluidContent AI.
@@ -78,6 +138,7 @@ REGOLE IMPORTANTI:
 - Se una preferenza utente è in conflitto con la natura del contenuto, usa il tuo miglior giudizio per trovare un equilibrio o segnalalo.
 - L'output "adapted_text" DEVE essere il testo completo e pronto per essere mostrato all'utente.
 """
+
 def generate_final_system_prompt(request_data: ProcessRequest, template: str) -> str:
     """
     Genera il prompt di sistema finale formattando il template con i dati
@@ -114,12 +175,7 @@ def generate_final_system_prompt(request_data: ProcessRequest, template: str) ->
     )
     return final_prompt
 
-# --- Inizializzazione dell'app FastAPI ---
-app = FastAPI(
-    title="FluidContent AI Backend",
-    description="API per elaborare e adattare contenuti usando Gemini AI.",
-    version="0.1.0"
-)
+
 
 # --- Endpoint API ---
 @app.get("/")
@@ -156,6 +212,30 @@ async def process_content_endpoint(request_data: ProcessRequest = Body(...)):
         raise HTTPException(status_code=500, detail="Failed to parse JSON response from Gemini API.")
 
     return response_data_dict
+
+
+@app.post(
+    "/process-content/sample",
+    # response_model=ProcessedContent,
+    responses={500: {"model": ErrorResponse}, 400: {"model": ErrorResponse}}
+)
+async def process_content_sample():
+    request_data = ProcessRequest(
+        profile=UserProfile(
+            user_id="12345",
+            name="Mario Rossi",
+            age=30,
+            interests=["tecnologia", "sport", "viaggi"],
+            preferences={"lingua": "italiano", "stile": "informale"}
+        ),
+        content=ContentInput(
+            title="Introduzione alla Programmazione",
+            description="Un articolo introduttivo sulla programmazione per principianti.",
+            original_text="La programmazione è un'abilità fondamentale nel mondo moderno..."
+        )
+    )
+    process_content_endpoint(request_data)
+
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)
 if __name__ == "__main__":
