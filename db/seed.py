@@ -111,11 +111,80 @@ def seed():
 
     # Leaderboard
     leaderboard_entries = [
-        Leaderboard(id='1', name='Stefano', avatar='https://www.plai-accelerator.com/content/uploads/2024/05/WhatsApp-Image-2024-05-30-at-22.20.28-e1717100490694.jpeg', level=15, totalXp=8750, articlesRead=127, streak=45),
-        Leaderboard(id='2', name='Antonio', avatar='https://www.plai-accelerator.com/content/uploads/2024/05/Antonio-Porro-AD-Gruppo-Mondadori-e1716021576318.jpeg', level=13, totalXp=6890, articlesRead=98, streak=23),
-        Leaderboard(id='3', name='Andrea', avatar='https://www.plai-accelerator.com/content/uploads/2024/04/Sito_Santagata.jpg', level=12, totalXp=5940, articlesRead=85, streak=18),
-        Leaderboard(id='4', name='Margherita', avatar='https://www.plai-accelerator.com/content/uploads/2025/05/corini-foto_346.jpg', level=12, totalXp=5200, articlesRead=76, streak=12)
+        Leaderboard(
+            id='1',
+            name='Stefano',
+            avatar='https://www.plai-accelerator.com/content/uploads/2024/05/WhatsApp-Image-2024-05-30-at-22.20.28-e1717100490694.jpeg',
+            level=15,
+            totalXp=8750,
+            articlesRead=127,
+            streak=45
+        ),
+        Leaderboard(
+            id='2',
+            name='Antonio',
+            avatar='https://www.plai-accelerator.com/content/uploads/2024/05/Antonio-Porro-AD-Gruppo-Mondadori-e1716021576318.jpeg',
+            level=13,
+            totalXp=6890,
+            articlesRead=98,
+            streak=23
+        ),
+        Leaderboard(
+            id='3',
+            name='Andrea',
+            avatar='https://www.plai-accelerator.com/content/uploads/2024/04/Sito_Santagata.jpg',
+            level=12,
+            totalXp=5940,
+            articlesRead=85,
+            streak=18
+        ),
+        Leaderboard(
+            id='4',
+            name='Margherita',
+            avatar='https://www.plai-accelerator.com/content/uploads/2025/05/corini-foto_346.jpg',
+            level=12,
+            totalXp=5200,
+            articlesRead=76,
+            streak=12
+        ),
+        Leaderboard(
+            id='5',
+            name='Caterina',
+            avatar='https://www.plai-accelerator.com/content/uploads/2025/03/caterina-rutschmann_346_ok.png',
+            level=9,
+            totalXp=2450,
+            articlesRead=34,
+            streak=8
+        ),
+        Leaderboard(
+            id='6',
+            name='Francesco',
+            avatar='https://www.plai-accelerator.com/content/uploads/2025/05/francesco_cavallo_346.jpeg',
+            level=7,
+            totalXp=1337,
+            articlesRead=11,
+            streak=3
+        ),
+        Leaderboard(
+            id='7',
+            name='Gabriele',
+            avatar='https://forums.terraria.org/data/avatars/h/197/197802.jpg',
+            level=6,
+            totalXp=619,
+            articlesRead=8,
+            streak=2
+        ),
+        Leaderboard(
+            id='8',
+            name='Daniele',
+            avatar='https://www.plai-accelerator.com/content/uploads/2024/05/giovannone_daniele_2.jpg',
+            level=3,
+            totalXp=322,
+            articlesRead=6,
+            streak=1
+        ),
     ]
+
     db.add_all(leaderboard_entries)
 
     db.commit()

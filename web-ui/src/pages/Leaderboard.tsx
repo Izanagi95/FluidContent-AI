@@ -4,27 +4,31 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Star, BookOpen, Flame, Medal, Crown } from "lucide-react";
-import { mockApi, LeaderboardEntry } from "@/services/mockApi";
+import { LeaderboardEntry } from "@/services/mockApi";
+import axios from "axios";
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('all');
 
-  useEffect(() => {
-    const loadLeaderboard = async () => {
-      try {
-        const data = await mockApi.getLeaderboard();
-        setLeaderboard(data);
-      } catch (error) {
-        console.error('Failed to load leaderboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadLeaderboard();
-  }, [timeframe]);
+useEffect(() => {
+  const loadLeaderboard = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/leaderboard`, {
+        params: { timeframe } // if your API supports filtering by timeframe via query params
+      });
+      setLeaderboard(response.data);
+    } catch (error) {
+      console.error('Failed to load leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadLeaderboard();
+}, [timeframe]);
 
   const getRankIcon = (position: number) => {
     switch (position) {
