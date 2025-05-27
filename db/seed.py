@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import date
 
 from db.database import SessionLocal  # oppure il tuo import corretto
-from db.model import User, Achievement, UserAchievement, Author, Article, Tag, ArticleTag, Leaderboard
+from db.model import User, Achievement, UserAchievement, Author, Article, Tag, ArticleTag, Leaderboard, Configuration
 
 def seed():
     db: Session = SessionLocal()
@@ -26,6 +26,18 @@ def seed():
         joinDate=date(2025, 5, 5)
     )
     db.add(user)
+
+
+    # Configurations (new)
+    config = Configuration(
+        id='1',
+        tone_preference='friendly',
+        length_preference='short',
+        format_preference='text',
+        age_preference=30,
+        user=user  # link configuration to user
+    )
+    db.add(config)
 
     # Achievements
     achievements = [

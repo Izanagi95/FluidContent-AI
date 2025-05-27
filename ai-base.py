@@ -11,7 +11,8 @@ from sqlalchemy.orm import Session
 from db.model import *
 from db.schemas import (
     UserCreate, UserUpdate, UserOut, 
-    AchievementOut, UserAchievementOut, UserAchievementCreate,
+    AchievementOut, UserAchievementOut, UserAchievementCreate, ConfigurationOut, ConfigurationCreate,
+    ConfigurationBase,
     AchievementCreate, AuthorCreate, AuthorOut, ArticleCreate, ArticleOut, TagCreate, TagOut, LeaderboardOut, LeaderboardCreate
 )
 from db.database import get_db, engine, Base
@@ -574,6 +575,49 @@ def delete_leaderboard(lb_id: str, db: Session = Depends(get_db)):
     db.delete(db_lb)
     db.commit()
     return {"detail": "Leaderboard entry deleted"}
+
+
+@app.post("/configurations/", response_model=ConfigurationOut)
+def create_configuration(config: ConfigurationCreate, db: Session = Depends(get_db)):
+    existing = db.query(Configuration).filter(Configuration.user_id == config.user_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Configuration for user already exists")
+    new_config = Configuration(**config.dict())
+    db.add(new_config)
+    db.commit()
+    db.refresh(new_config)
+    return new_config
+
+@app.get("/configurations/", response_model=List[ConfigurationOut])
+def read_configurations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(Configuration).offset(skip).limit(limit).all()
+
+@app.get("/configurations/{config_id}", response_model=ConfigurationOut)
+def read_configuration(config_id: str, db: Session = Depends(get_db)):
+    config = db.query(Configuration).filter(Configuration.id == config_id).first()
+    if not config:
+        raise HTTPException(status_code=404, detail="Configuration not found")
+    return config
+
+@app.put("/configurations/{config_id}", response_model=ConfigurationOut)
+def update_configuration(config_id: str, config_in: ConfigurationBase, db: Session = Depends(get_db)):
+    config = db.query(Configuration).filter(Configuration.id == config_id).first()
+    if not config:
+        raise HTTPException(status_code=404, detail="Configuration not found")
+    for key, value in config_in.dict(exclude_unset=True).items():
+        setattr(config, key, value)
+    db.commit()
+    db.refresh(config)
+    return config
+
+@app.delete("/configurations/{config_id}")
+def delete_configuration(config_id: str, db: Session = Depends(get_db)):
+    config = db.query(Configuration).filter(Configuration.id == config_id).first()
+    if not config:
+        raise HTTPException(status_code=404, detail="Configuration not found")
+    db.delete(config)
+    db.commit()
+    return {"detail": "Configuration deleted"}
 
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)

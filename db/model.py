@@ -16,8 +16,19 @@ class User(Base):
     xpToNext = Column(Integer, nullable=False)
     totalXp = Column(Integer, nullable=False)
     joinDate = Column(Date, nullable=False)
-
+    configuration = relationship("Configuration", back_populates="user", uselist=False)
     achievements = relationship("UserAchievement", back_populates="user")
+
+
+class Configuration(Base):
+    __tablename__ = "Configurations"
+    id = Column(String, primary_key=True, index=True)
+    tone_preference = Column(String, nullable=True)
+    length_preference = Column(String, nullable=True)
+    format_preference = Column(String, nullable=True)
+    age_preference = Column(Integer, nullable=True)
+    user_id = Column(String, ForeignKey("Users.id"), nullable=False, unique=True)  # <-- add this line
+    user =  relationship("User", back_populates="configuration",  uselist=False)
 
 
 class Achievement(Base):
@@ -27,7 +38,6 @@ class Achievement(Base):
     description = Column(String, nullable=False)
     icon = Column(String, nullable=False)
     xpReward = Column(Integer, nullable=False)
-
     users = relationship("UserAchievement", back_populates="achievement")
 
 

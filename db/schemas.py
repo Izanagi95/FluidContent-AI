@@ -130,3 +130,21 @@ class LeaderboardCreate(LeaderboardBase):
 class LeaderboardOut(LeaderboardBase):
     class Config:
         orm_mode = True
+
+
+# Pydantic schemas for Configuration
+class ConfigurationBase(BaseModel):
+    tone_preference: str | None = None
+    length_preference: str | None = None
+    format_preference: str | None = None
+    age_preference: int | None = None
+
+class ConfigurationCreate(ConfigurationBase):
+    user_id: str  # link to user on creation
+
+class ConfigurationOut(ConfigurationBase):
+    id: str
+    user_id: str
+
+    class Config:
+        orm_mode = True
