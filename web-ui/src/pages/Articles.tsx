@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Heart, Eye, Clock, X, SlidersHorizontal } from "lucide-react";
-import { mockApi, Article } from "@/services/mockApi";
+import { mockApi, Article } from "@/services/ServiceInterface";
+import axios from "axios";
 
 const Articles = () => {
   const navigate = useNavigate();
@@ -24,10 +25,10 @@ const Articles = () => {
       return;
     }
 
-    const loadArticles = async () => {
+      const loadArticles = async () => {
       try {
-        const data = await mockApi.getArticles();
-        setArticles(data);
+        const response = await axios.get('http://localhost:8000/articles');
+        setArticles(response.data);
       } catch (error) {
         console.error('Failed to load articles:', error);
       } finally {
@@ -38,48 +39,54 @@ const Articles = () => {
     loadArticles();
   }, [navigate]);
 
-  const allTags = [...new Set(articles.flatMap(article => article.tags))];
 
-  const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.author.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesTags = selectedTags.length === 0 || 
-      selectedTags.some(tag => article.tags.includes(tag));
-    
-    return matchesSearch && matchesTags;
-  });
+// allTags ora sono i nomi unici dei tag
+const allTags = [...new Set(articles.flatMap(article => article.tags.map(tag => tag.name)))];
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  };
+const filteredArticles = articles.filter(article => {
+  const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.author.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesTags = selectedTags.length === 0 ||
+    selectedTags.some(tagName => article.tags.some(t => t.name === tagName));
+
+  return matchesSearch && matchesTags;
+});
+
+const toggleTag = (tagName: string) => {
+  setSelectedTags(prev =>
+    prev.includes(tagName)
+      ? prev.filter(t => t !== tagName)
+      : [...prev, tagName]
+  );
+};
 
   const clearFilters = () => {
     setSelectedTags([]);
     setSearchQuery('');
   };
 
-  const handleLike = async (articleId: string) => {
-    try {
-      const updatedArticle = await mockApi.likeArticle(articleId);
-      if (updatedArticle) {
-        setArticles(prev => prev.map(article => 
-          article.id === articleId ? updatedArticle : article
-        ));
+  // const handleLike = async (articleId: string) => {
+  //   try {
+  //     const updatedArticle = await mockApi.likeArticle(articleId);
+  //     if (updatedArticle) {
+  //       setArticles(prev => prev.map(article => 
+  //         article.id === articleId ? updatedArticle : article
+  //       ));
         
-        // Add XP for liking an article
-        if (updatedArticle.isLiked) {
-          //mockApi.addXp(10, 'Liked an article');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to like article:', error);
-    }
+  //       // Add XP for liking an article
+  //       if (updatedArticle.isLiked) {
+  //         //mockApi.addXp(10, 'Liked an article');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to like article:', error);
+  //   }
+  // };
+
+  const handleLike = (articleId: string) => {
+    setArticles(prev => prev.map(article => article.id === articleId ? {...article, isLiked: !article.isLiked, likes: article.isLiked ? article.likes - 1 : article.likes + 1 } : article));
   };
 
   if (loading) {
@@ -142,15 +149,15 @@ const Articles = () => {
               <div className="border-t pt-4">
                 <h3 className="text-sm font-medium mb-3">Filter by topics:</h3>
                 <div className="flex gap-2 flex-wrap">
-                  {allTags.map((tag) => (
+                  {allTags.map((tagName) => (
                     <Badge 
-                      key={tag}
-                      variant={selectedTags.includes(tag) ? "default" : "outline"}
+                      key={tagName}
+                      variant={selectedTags.includes(tagName) ? "default" : "outline"}
                       className="cursor-pointer hover:bg-primary/10"
-                      onClick={() => toggleTag(tag)}
+                      onClick={() => toggleTag(tagName)}
                     >
-                      {tag}
-                      {selectedTags.includes(tag) && (
+                      {tagName}
+                      {selectedTags.includes(tagName) && (
                         <X className="h-3 w-3 ml-1" />
                       )}
                     </Badge>
@@ -200,16 +207,16 @@ const Articles = () => {
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    {article.tags.map((tag) => (
-                      <Badge 
-                        key={tag} 
-                        variant="secondary"
-                        className="cursor-pointer hover:bg-primary/10"
-                        onClick={() => toggleTag(tag)}
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
+                  {article.tags.map((tag) => (
+                  <Badge 
+                    key={tag.id}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-primary/10"
+                    onClick={() => toggleTag(tag.name)}
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
                   </div>
                   
                   <Link to={`/articles/${article.id}`}>

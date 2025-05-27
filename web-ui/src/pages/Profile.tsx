@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, Star, Trophy, BookOpen, Edit3 } from "lucide-react";
-import { User as UserType } from "@/services/mockApi";
+import { User as UserType } from "@/services/ServiceInterface";
 import { toast } from "sonner";
 import axios from "axios";
 

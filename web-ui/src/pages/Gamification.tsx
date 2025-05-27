@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Star, Trophy, Target, TrendingUp, Award, Zap, Coins, Gift } from "lucide-react";
-import { User } from "@/services/mockApi";
+import { User } from "@/services/ServiceInterface";
 import axios from "axios";
 
 const Gamification = () => {

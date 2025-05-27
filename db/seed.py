@@ -55,7 +55,22 @@ def seed():
             id='1',
             title='The Future of Web Development',
             excerpt='Exploring the latest trends...',
-            content='<html content>',
+            content="""
+                <h2>Introduction</h2>
+                <p>Web development continues to evolve at a rapid pace, with new frameworks, tools, and methodologies emerging regularly. In this comprehensive guide, we'll explore the key trends that are shaping the future of web development.</p>
+                
+                <h2>AI Integration</h2>
+                <p>Artificial Intelligence is becoming increasingly integrated into web development workflows. From automated code generation to intelligent debugging, AI tools are revolutionizing how we build web applications.</p>
+                
+                <h2>WebAssembly Revolution</h2>
+                <p>WebAssembly (WASM) is opening new possibilities for web applications, allowing developers to run high-performance code written in languages like C++, Rust, and Go directly in the browser.</p>
+                
+                <h2>Edge Computing</h2>
+                <p>Edge computing is bringing computation closer to users, reducing latency and improving performance. This shift is changing how we architect and deploy web applications.</p>
+                
+                <h2>Conclusion</h2>
+                <p>The future of web development is exciting and full of possibilities. By staying informed about these trends, developers can build better, more efficient, and more user-friendly applications.</p>
+            """,
             authorId='a1',
             publishDate=date(2024, 1, 25),
             readTime=8,
@@ -68,7 +83,16 @@ def seed():
             id='2',
             title='Building Sustainable Design Systems',
             excerpt='Learn how to create design systems...',
-            content='<html content>',
+            content="""
+                <h2>What is a Design System?</h2>
+                <p>A design system is a collection of reusable components, guided by clear standards, that can be assembled together to build any number of applications.</p>
+                
+                <h2>Key Components</h2>
+                <p>Successful design systems include typography, color palettes, spacing guidelines, component libraries, and documentation.</p>
+                
+                <h2>Implementation Strategy</h2>
+                <p>Start small with core components and gradually expand. Ensure buy-in from stakeholders and maintain comprehensive documentation.</p>
+            """,
             authorId='a2',
             publishDate=date(2024, 1, 23),
             readTime=12,
@@ -81,7 +105,16 @@ def seed():
             id='3',
             title='Mastering React Performance',
             excerpt='Advanced techniques for optimizing...',
-            content='<html content>',
+            content="""
+                <h2>Performance Fundamentals</h2>
+                <p>Understanding React's rendering cycle is crucial for optimizing performance. Learn about reconciliation, virtual DOM, and React's optimization strategies.</p>
+                
+                <h2>Optimization Techniques</h2>
+                <p>Explore memo, useMemo, useCallback, and other React hooks that can help prevent unnecessary re-renders.</p>
+                
+                <h2>Measuring Performance</h2>
+                <p>Use React DevTools Profiler and browser performance tools to identify bottlenecks in your applications.</p>
+            """,
             authorId='a3',
             publishDate=date(2024, 1, 22),
             readTime=15,

@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Star, BookOpen, Flame, Medal, Crown } from "lucide-react";
-import { LeaderboardEntry } from "@/services/mockApi";
+import { LeaderboardEntry } from "@/services/ServiceInterface";
 import axios from "axios";
 
 const Leaderboard = () => {

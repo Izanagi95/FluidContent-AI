@@ -5,8 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Heart, Eye, Clock, Share2, BookOpen, Star } from "lucide-react";
-import { mockApi, Article } from "@/services/mockApi";
+import { Article } from "@/services/ServiceInterface";
 import { toast } from "sonner";
+import axios from "axios";
 
 const ArticleDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,46 +22,53 @@ const ArticleDetail = () => {
       navigate('/auth');
       return;
     }
+    
+      const loadArticle = async () => {
+        if (!id) return;
 
-    const loadArticle = async () => {
-      if (!id) return;
-      
-      try {
-        const data = await mockApi.getArticle(id);
-        setArticle(data);
-        
-        // Add XP for reading an article
-        if (data) {
-          //mockApi.addXp(25, 'Read an article');
-          toast.success('Great job reading! +25 XP', {
-            icon: <Star className="h-4 w-4 text-yellow-500" />
-          });
+        try {
+          const response = await axios.get(`http://localhost:8000/articles/${id}`);
+          const data = response.data;
+          setArticle(data);
+          
+          // Add XP for reading an article
+          if (data) {
+            //mockApi.addXp(25, 'Read an article');
+            toast.success('Great job reading! +25 XP', {
+              icon: <Star className="h-4 w-4 text-yellow-500" />
+            });
+          }
+        } catch (error) {
+          console.error('Failed to load article:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to load article:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
     loadArticle();
   }, [id, navigate]);
+  
 
   const handleLike = async () => {
     if (!article) return;
     
     try {
-      const updatedArticle = await mockApi.likeArticle(article.id);
-      if (updatedArticle) {
-        setArticle(updatedArticle);
+      // const updatedArticle = await mockApi.likeArticle(article.id);
+      // if (updatedArticle) {
+      //   setArticle(updatedArticle);
         
-        if (updatedArticle.isLiked) {
-          //mockApi.addXp(10, 'Liked an article');
-          toast.success('Article liked! +10 XP', {
+      //   if (updatedArticle.isLiked) {
+      //     //mockApi.addXp(10, 'Liked an article');
+      //     toast.success('Article liked! +10 XP', {
+      //       icon: <Heart className="h-4 w-4 text-red-500" />
+      //     });
+      //   }
+      // }
+
+      setArticle({...article, isLiked: !article.isLiked, likes: article.isLiked ? article.likes - 1 : article.likes + 1 });
+      toast.success('Article liked! +10 XP', {
             icon: <Heart className="h-4 w-4 text-red-500" />
           });
-        }
-      }
     } catch (error) {
       console.error('Failed to like article:', error);
     }
@@ -128,7 +136,7 @@ const ArticleDetail = () => {
           
           <div className="flex items-center gap-2 mb-4">
             {article.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">{tag}</Badge>
+              <Badge key={tag.id} variant="secondary">{tag.name}</Badge>
             ))}
           </div>
           
