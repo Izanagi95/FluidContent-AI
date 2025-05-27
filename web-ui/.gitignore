@@ -100,8 +100,6 @@ typings/
 # dotenv environment variables file
 .env
 
-
-
 .travis/README.md
 .travis/scripts
 

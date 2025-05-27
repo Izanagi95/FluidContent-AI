@@ -32,14 +32,18 @@ export interface Article {
   thumbnail: string;
 }
 
-export interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
+type Achievement = {
+  userId: string;
+  achievementId: string;
   unlockedAt: string;
-  xpReward: number;
-}
+  achievement: {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    xpReward: number;
+  };
+};
 
 export interface LeaderboardEntry {
   id: string;
@@ -52,37 +56,6 @@ export interface LeaderboardEntry {
 }
 
 // Mock data
-const mockUser: User = {
-  id: '1',
-  name: 'Gabriele',
-  email: 'gabbo@ai.com',
-  role: (localStorage.getItem('userRole') as any) || 'consumer',
-  avatar: 'https://forums.terraria.org/data/avatars/h/197/197802.jpg',
-  level: 6,
-  xp: 619,
-  xpToNext: 81,
-  totalXp: 619,
-  achievements: [
-    {
-      id: '1',
-      name: 'First Steps',
-      description: 'Read your first article',
-      icon: '📖',
-      unlockedAt: '2025-05-15',
-      xpReward: 50
-    },
-    {
-      id: '2',
-      name: 'Speed Reader',
-      description: 'Read 10 articles in one day',
-      icon: '⚡',
-      unlockedAt: '2025-05-20',
-      xpReward: 200
-    }
-  ],
-  joinDate: '2025-05-05'
-};
-
 const mockArticles: Article[] = [
   {
     id: '1',
@@ -247,21 +220,6 @@ const mockLeaderboard: LeaderboardEntry[] = [
 
 // Mock API functions
 export const mockApi = {
-  // User endpoints
-  getCurrentUser: (): Promise<User> => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(mockUser), 500);
-    });
-  },
-
-  updateUser: (updates: Partial<User>): Promise<User> => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        Object.assign(mockUser, updates);
-        resolve(mockUser);
-      }, 300);
-    });
-  },
 
   // Article endpoints
   getArticles: (): Promise<Article[]> => {
@@ -293,27 +251,27 @@ export const mockApi = {
   },
 
   // Gamification endpoints
-  addXp: (amount: number, reason: string): Promise<{ user: User; levelUp: boolean }> => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const oldLevel = mockUser.level;
-        mockUser.xp += amount;
-        mockUser.totalXp += amount;
+  // addXp: (amount: number, reason: string): Promise<{ user: User; levelUp: boolean }> => {
+  //   return new Promise(resolve => {
+  //     setTimeout(() => {
+  //       const oldLevel = mockUser.level;
+  //       mockUser.xp += amount;
+  //       mockUser.totalXp += amount;
         
-        // Level up logic (1000 XP per level)
-        const newLevel = Math.floor(mockUser.totalXp / 1000) + 1;
-        const levelUp = newLevel > oldLevel;
+  //       // Level up logic (1000 XP per level)
+  //       const newLevel = Math.floor(mockUser.totalXp / 1000) + 1;
+  //       const levelUp = newLevel > oldLevel;
         
-        if (levelUp) {
-          mockUser.level = newLevel;
-        }
+  //       if (levelUp) {
+  //         mockUser.level = newLevel;
+  //       }
         
-        mockUser.xpToNext = (mockUser.level * 1000) - mockUser.totalXp;
+  //       mockUser.xpToNext = (mockUser.level * 1000) - mockUser.totalXp;
         
-        resolve({ user: mockUser, levelUp });
-      }, 300);
-    });
-  },
+  //       resolve({ user: mockUser, levelUp });
+  //     }, 300);
+  //   });
+  // },
 
   // Leaderboard endpoints
   getLeaderboard: (): Promise<LeaderboardEntry[]> => {

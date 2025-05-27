@@ -28,6 +28,7 @@ class UserAchievementCreate(UserAchievementBase):
     pass
 
 class UserAchievementOut(UserAchievementBase):
+    achievement: Optional[AchievementOut] 
     class Config:
         orm_mode = True
 
@@ -49,6 +50,14 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     pass
+
+class UserUpdate(BaseModel):
+    id: str
+    name: Optional[str]
+    email: Optional[EmailStr]
+    role: Optional[RoleType]
+    avatar: Optional[str]
+
 
 class UserOut(UserBase):
     achievements: List[UserAchievementOut] = []

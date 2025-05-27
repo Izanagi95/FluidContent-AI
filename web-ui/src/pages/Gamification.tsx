@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Star, Trophy, Target, TrendingUp, Award, Zap, Coins, Gift } from "lucide-react";
-import { mockApi, User, Achievement } from "@/services/mockApi";
+import { User } from "@/services/mockApi";
+import axios from "axios";
 
 const Gamification = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -11,19 +12,19 @@ const Gamification = () => {
   const [credits, setCredits] = useState(850); // Mock credits
 
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = await mockApi.getCurrentUser();
-        setUser(userData);
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUserData();
-  }, []);
+  const loadUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/users/1');
+      const userData = response.data;
+      setUser(userData);
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadUser();
+}, []);
 
   if (loading || !user) {
     return (
@@ -168,18 +169,18 @@ const Gamification = () => {
             </h3>
             
             <div className="space-y-4">
-              {user.achievements.map((achievement) => (
-                <div key={achievement.id} className="flex items-start gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border">
-                  <div className="text-3xl">{achievement.icon}</div>
+              {user.achievements.map((entry) => (
+                <div key={entry.achievement.id} className="flex items-start gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border">
+                  <div className="text-3xl">{entry.achievement.icon}</div>
                   <div className="flex-1">
-                    <h4 className="font-semibold">{achievement.name}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{achievement.description}</p>
+                    <h4 className="font-semibold">{entry.achievement.name}</h4>
+                    <p className="text-sm text-gray-600 mb-2">{entry.achievement.description}</p>
                     <div className="flex items-center gap-2">
                       <Badge className="bg-yellow-100 text-yellow-800">
-                        +{achievement.xpReward} XP
+                        +{entry.achievement.xpReward} XP
                       </Badge>
                       <span className="text-xs text-gray-500">
-                        Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
+                        Unlocked {new Date(entry.unlockedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>

@@ -74,7 +74,7 @@ const Articles = () => {
         
         // Add XP for liking an article
         if (updatedArticle.isLiked) {
-          mockApi.addXp(10, 'Liked an article');
+          //mockApi.addXp(10, 'Liked an article');
         }
       }
     } catch (error) {

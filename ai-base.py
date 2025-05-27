@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from db.model import *
 from db.schemas import (
-    UserCreate, UserOut, 
+    UserCreate, UserUpdate, UserOut, 
     AchievementOut, UserAchievementOut, UserAchievementCreate,
     AchievementCreate, AuthorCreate, AuthorOut, ArticleCreate, ArticleOut, TagCreate, TagOut, LeaderboardOut, LeaderboardCreate
 )
@@ -278,11 +278,14 @@ def read_user(user_id: str, db: Session = Depends(get_db)):
     return user
 
 @app.put("/users/{user_id}", response_model=UserOut)
-def update_user(user_id: str, user: UserCreate, db: Session = Depends(get_db)):
+def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(404, "User not found")
-    for key, value in user.dict().items():
+    
+    user_data = {k: v for k, v in user.dict(exclude_unset=True).items() if v not in (None, "")}
+
+    for key, value in user_data.items():
         setattr(db_user, key, value)
     db.commit()
     db.refresh(db_user)

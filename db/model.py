@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, Boolean, Date, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
-from db.database import Base  # ✅ Usa la stessa Base condivisa
+from db.database import Base
 
 
 # ORM MODELS

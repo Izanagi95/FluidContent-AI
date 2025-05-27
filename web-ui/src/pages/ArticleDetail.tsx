@@ -31,7 +31,7 @@ const ArticleDetail = () => {
         
         // Add XP for reading an article
         if (data) {
-          mockApi.addXp(25, 'Read an article');
+          //mockApi.addXp(25, 'Read an article');
           toast.success('Great job reading! +25 XP', {
             icon: <Star className="h-4 w-4 text-yellow-500" />
           });
@@ -55,7 +55,7 @@ const ArticleDetail = () => {
         setArticle(updatedArticle);
         
         if (updatedArticle.isLiked) {
-          mockApi.addXp(10, 'Liked an article');
+          //mockApi.addXp(10, 'Liked an article');
           toast.success('Article liked! +10 XP', {
             icon: <Heart className="h-4 w-4 text-red-500" />
           });

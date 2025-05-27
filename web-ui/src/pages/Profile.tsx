@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, Star, Trophy, BookOpen, Edit3 } from "lucide-react";
-import { mockApi, User as UserType } from "@/services/mockApi";
+import { User as UserType } from "@/services/mockApi";
 import { toast } from "sonner";
+import axios from "axios";
 
 const Profile = () => {
   const [user, setUser] = useState<UserType | null>(null);
@@ -18,37 +19,42 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userData = await mockApi.getCurrentUser();
-        setUser(userData);
-        setFormData({
-          name: userData.name,
-          email: userData.email
-        });
-      } catch (error) {
-        console.error('Failed to load user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUser();
-  }, []);
+  const loadUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/users/1');
+      const userData = response.data;
+      setUser(userData);
+      setFormData({
+        name: userData.name,
+        email: userData.email
+      });
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadUser();
+}, []);
 
   const handleSave = async () => {
     if (!user) return;
-    
-    try {
-      const updatedUser = await mockApi.updateUser(formData);
-      setUser(updatedUser);
-      setEditing(false);
-      toast.success('Profile updated successfully!');
-    } catch (error) {
-      console.error('Failed to update profile:', error);
-      toast.error('Failed to update profile');
-    }
-  };
+    const newUser = {
+      ...user,
+      ...formData
+    };
+
+  try {
+    const response = await axios.put(`http://localhost:8000/users/${user.id}`, newUser);
+    const updatedUser = response.data;
+    setUser(updatedUser);
+    setEditing(false);
+    toast.success('Profile updated successfully!', response.data);
+  } catch (error) {
+    console.error('Failed to update profile:', error);
+    toast.error('Failed to update profile');
+  }
+};
 
   const handleCancel = () => {
     if (user) {
@@ -195,19 +201,19 @@ const Profile = () => {
           
           {user.achievements.length > 0 ? (
             <div className="space-y-4">
-              {user.achievements.slice(-3).map((achievement) => (
-                <div key={achievement.id} className="flex items-center gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
-                  <div className="text-3xl">{achievement.icon}</div>
+              {user.achievements.slice(-3).map((entry) => (
+                <div key={entry.achievement.id} className="flex items-center gap-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="text-3xl">{entry.achievement.icon}</div>
                   <div className="flex-1">
-                    <h4 className="font-semibold">{achievement.name}</h4>
-                    <p className="text-sm text-gray-600">{achievement.description}</p>
+                    <h4 className="font-semibold">{entry.achievement.name}</h4>
+                    <p className="text-sm text-gray-600">{entry.achievement.description}</p>
                   </div>
                   <div className="text-right">
                     <Badge className="bg-yellow-100 text-yellow-800">
-                      +{achievement.xpReward} XP
+                      +{entry.achievement.xpReward} XP
                     </Badge>
                     <div className="text-xs text-gray-500 mt-1">
-                      {new Date(achievement.unlockedAt).toLocaleDateString()}
+                      {new Date(entry.unlockedAt).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
