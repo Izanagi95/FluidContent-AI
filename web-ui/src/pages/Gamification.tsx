@@ -1,14 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Star, Trophy, Target, TrendingUp, Award, Zap } from "lucide-react";
+import { Star, Trophy, Target, TrendingUp, Award, Zap, Coins, Gift } from "lucide-react";
 import { mockApi, User, Achievement } from "@/services/mockApi";
 
 const Gamification = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [credits, setCredits] = useState(850); // Mock credits
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -98,8 +98,8 @@ const Gamification = () => {
           </div>
         </Card>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        {/* Stats Grid with Credits */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
           {stats.map((stat) => (
             <Card key={stat.label} className="p-6 text-center">
               <div className={`w-12 h-12 ${stat.color} mx-auto mb-3 flex items-center justify-center bg-gray-100 rounded-full`}>
@@ -109,7 +109,54 @@ const Gamification = () => {
               <div className="text-sm text-gray-600">{stat.label}</div>
             </Card>
           ))}
+          
+          {/* Credits Card */}
+          <Card className="p-6 text-center bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+            <div className="w-12 h-12 text-emerald-600 mx-auto mb-3 flex items-center justify-center bg-emerald-100 rounded-full">
+              <Coins className="h-6 w-6" />
+            </div>
+            <div className="text-2xl font-bold mb-1 text-emerald-700">{credits}</div>
+            <div className="text-sm text-emerald-600 font-medium">Credits</div>
+            <div className="text-xs text-emerald-500 mt-1">For rewards & gadgets</div>
+          </Card>
         </div>
+
+        {/* Credits Details Card */}
+        <Card className="p-6 mb-8 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-semibold text-emerald-800 flex items-center gap-2">
+              <Gift className="h-6 w-6" />
+              Rewards & Credits
+            </h3>
+            <Badge className="bg-emerald-100 text-emerald-800 text-lg px-3 py-1">
+              {credits} Credits Available
+            </Badge>
+          </div>
+          
+          <p className="text-emerald-700 mb-4">
+            Use your credits to get free stuff, gadgets, and exclusive offers from local shops and supermarkets!
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-lg border border-emerald-200">
+              <h4 className="font-semibold text-emerald-800 mb-2">Coffee Voucher</h4>
+              <p className="text-sm text-emerald-600 mb-2">Free coffee at partner cafes</p>
+              <Badge variant="outline" className="text-emerald-600 border-emerald-300">50 Credits</Badge>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-emerald-200">
+              <h4 className="font-semibold text-emerald-800 mb-2">Tech Gadgets</h4>
+              <p className="text-sm text-emerald-600 mb-2">Discount on electronics</p>
+              <Badge variant="outline" className="text-emerald-600 border-emerald-300">200 Credits</Badge>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-emerald-200">
+              <h4 className="font-semibold text-emerald-800 mb-2">Grocery Discount</h4>
+              <p className="text-sm text-emerald-600 mb-2">10% off at supermarkets</p>
+              <Badge variant="outline" className="text-emerald-600 border-emerald-300">100 Credits</Badge>
+            </div>
+          </div>
+        </Card>
 
         {/* Achievements Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Settings as SettingsIcon, Bell, Moon, Globe, Shield, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
+import ProfileConfigurationCard from "@/components/settings/ProfileConfigurationCard";
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -55,6 +56,7 @@ const Settings = () => {
           </p>
         </div>
 
+        <ProfileConfigurationCard />
         {/* Current Role */}
         <Card className="p-6 mb-6">
           <div className="flex items-center justify-between">
