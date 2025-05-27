@@ -56,7 +56,6 @@ const Settings = () => {
           </p>
         </div>
 
-        <ProfileConfigurationCard />
         {/* Current Role */}
         <Card className="p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -75,6 +74,8 @@ const Settings = () => {
             </Button>
           </div>
         </Card>
+        
+        <ProfileConfigurationCard />
 
         {/* Notification Settings */}
         <Card className="p-6 mb-6">

@@ -88,11 +88,11 @@ const ProfileConfigurationCard = () => {
     <Card className="p-6 mb-6">
       <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
         <User className="h-5 w-5" />
-        Profile Configuration
+        Content Configuration
       </h3>
       
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Name</label>
             <Input
@@ -110,7 +110,7 @@ const ProfileConfigurationCard = () => {
               placeholder="Your age"
             />
           </div>
-        </div>
+        </div> */}
 
         <div>
           <label className="block text-sm font-medium mb-2">Interests</label>
@@ -118,7 +118,7 @@ const ProfileConfigurationCard = () => {
             <Input
               value={newInterest}
               onChange={(e) => setNewInterest(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyUp={handleKeyPress}
               placeholder="Add an interest and press Enter"
             />
             <div className="flex flex-wrap gap-2">
