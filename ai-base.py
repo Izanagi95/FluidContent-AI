@@ -248,7 +248,7 @@ async def process_content_sample():
             original_text="La programmazione è un'abilità fondamentale nel mondo moderno..."
         )
     )
-    process_content_endpoint(request_data)
+    return process_content_endpoint(request_data)
 
 
 

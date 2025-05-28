@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Star, BookOpen, Flame, Medal, Crown } from "lucide-react";
+import { Trophy, Star, BookOpen, Flame, Medal, Crown, Music, Play, Pause, Coins } from "lucide-react";
 import { LeaderboardEntry } from "@/services/ServiceInterface";
 import axios from "axios";
 
@@ -11,6 +10,8 @@ const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('all');
+  const [playingMusic, setPlayingMusic] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
 
 useEffect(() => {
@@ -29,6 +30,56 @@ useEffect(() => {
 
   loadLeaderboard();
 }, [timeframe]);
+
+  const celebrationSongs = {
+    1: "/resources/prize1.mp3", 
+    2: "/resources/prize2.mp3", 
+    3: "/resources/prize2.mp3" 
+  };
+
+  const playMusic = (position: number) => {
+    const selectedSong = celebrationSongs[position];
+
+    if (!selectedSong) return;
+
+    // Se clicchi sullo stesso tasto che sta già suonando, stoppa
+    if (playingMusic === position) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setPlayingMusic(null);
+    } else {
+      // Ferma qualsiasi altra musica
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      const audio = new Audio(selectedSong);
+      audio.volume = 0.3;
+
+      audio.play().then(() => {
+        setPlayingMusic(position);
+        audioRef.current = audio;
+
+        // Quando finisce, resetta lo stato
+        audio.onended = () => {
+          setPlayingMusic(null);
+        };
+      }).catch(error => {
+        console.error("Errore durante la riproduzione audio:", error);
+      });
+    }
+  };
+
+  const getPrizeCredits = (position: number) => {
+    switch (position) {
+      case 1: return 1000;
+      case 2: return 750;
+      case 3: return 500;
+      default: return 0;
+    }
+  };
 
   const getRankIcon = (position: number) => {
     switch (position) {
@@ -109,10 +160,31 @@ useEffect(() => {
               </div>
               <h3 className="font-semibold text-lg mb-1">{leaderboard[1].name}</h3>
               <Badge className="bg-gray-100 text-gray-600 mb-2">2nd Place</Badge>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 mb-3">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="h-4 w-4" />
                   {leaderboard[1].totalXp} XP
+                </div>
+              </div>
+              
+              {/* Prize Section */}
+              <div className="border-t pt-3 space-y-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => playMusic(2)}
+                  className="w-full flex items-center gap-2"
+                >
+                  {playingMusic === 2 ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {playingMusic === 2 ? 'Playing...' : 'Play Song'}
+                </Button>
+                <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-medium">
+                  <Coins className="h-4 w-4" />
+                  {getPrizeCredits(2)} Credits
                 </div>
               </div>
             </Card>
@@ -135,10 +207,30 @@ useEffect(() => {
               <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white mb-2">
                 👑 Champion
               </Badge>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 mb-3">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="h-4 w-4" />
                   {leaderboard[0].totalXp} XP
+                </div>
+              </div>
+              
+              {/* Prize Section */}
+              <div className="border-t pt-3 space-y-2">
+                <Button
+                  size="sm"
+                  onClick={() => playMusic(1)}
+                  className="w-full flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
+                >
+                  {playingMusic === 1 ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {playingMusic === 1 ? 'Playing Victory!' : 'Play Song'}
+                </Button>
+                <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-bold">
+                  <Coins className="h-4 w-4" />
+                  {getPrizeCredits(1)} Credits
                 </div>
               </div>
             </Card>
@@ -159,10 +251,31 @@ useEffect(() => {
               </div>
               <h3 className="font-semibold text-lg mb-1">{leaderboard[2].name}</h3>
               <Badge className="bg-orange-100 text-orange-600 mb-2">3rd Place</Badge>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 mb-3">
                 <div className="flex items-center justify-center gap-1">
                   <Star className="h-4 w-4" />
                   {leaderboard[2].totalXp} XP
+                </div>
+              </div>
+              
+              {/* Prize Section */}
+              <div className="border-t pt-3 space-y-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => playMusic(3)}
+                  className="w-full flex items-center gap-2"
+                >
+                  {playingMusic === 3 ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {playingMusic === 3 ? 'Playing...' : 'Play Song'}
+                </Button>
+                <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-medium">
+                  <Coins className="h-4 w-4" />
+                  {getPrizeCredits(3)} Credits
                 </div>
               </div>
             </Card>
@@ -179,6 +292,8 @@ useEffect(() => {
           <div className="space-y-3">
             {leaderboard.map((entry, index) => {
               const position = index + 1;
+              const prizeCredits = getPrizeCredits(position);
+              
               return (
                 <div 
                   key={entry.id}
@@ -215,13 +330,35 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  {/* XP */}
+                  {/* XP and Prizes */}
                   <div className="text-right">
                     <div className="text-xl font-bold text-yellow-600">
                       {entry.totalXp}
                     </div>
                     <div className="text-sm text-gray-500">XP</div>
+                    {prizeCredits > 0 && (
+                      <div className="flex items-center gap-1 text-sm text-yellow-600 font-medium mt-1">
+                        <Coins className="h-3 w-3" />
+                        +{prizeCredits}
+                      </div>
+                    )}
                   </div>
+
+                  {/* Music Button for Top 3 */}
+                  {position <= 3 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => playMusic(position)}
+                      className="ml-2"
+                    >
+                      {playingMusic === position ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
                 </div>
               );
             })}
@@ -233,6 +370,8 @@ useEffect(() => {
           <h3 className="text-xl font-semibold mb-2">Keep Reading to Climb Higher!</h3>
           <p className="text-gray-600">
             Read articles, like content, and maintain your streak to earn more XP and climb the leaderboard.
+            <br />
+            <strong>Top 3 winners get special prizes including celebration music and bonus credits!</strong>
           </p>
         </Card>
       </div>
