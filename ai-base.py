@@ -248,7 +248,7 @@ async def process_content_sample():
             original_text="La programmazione è un'abilità fondamentale nel mondo moderno..."
         )
     )
-    return process_content_endpoint(request_data)
+    return await process_content_endpoint(request_data)
 
 
 
@@ -503,6 +503,47 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
 @app.get("/articles/", response_model=List[ArticleOut])
 def read_articles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(Article).offset(skip).limit(limit).all()
+
+
+@app.get("/enhanced-articles/{article_id}")
+async def asyncread_article(article_id: str, db: Session = Depends(get_db)):
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(404, "Article not found")
+    configuration = db.query(Configuration).filter(Configuration.id == '1').first()
+    user = db.query(User).filter(User.id == '1').first()
+
+    request_data = ProcessRequest(
+        profile=UserProfile(
+            user_id=configuration.user_id,
+            name=user.name,
+            age=configuration.age_preference,
+            interests=["tecnologia", "sport", "viaggi"],
+            preferences={"lingua": "italiano", "stile": configuration.tone_preference}
+        ),
+        content=ContentInput(
+            title=article.title,
+            description=article.excerpt,
+            original_text=article.content
+        )
+    )
+    return {
+        "id": article.id,
+        "title": article.title,
+        "excerpt": article.excerpt,
+        "content": article.content,
+        "authorId": article.authorId,
+        "publishDate": article.publishDate,
+        "readTime": article.readTime,
+        "likes": article.likes,
+        "views": article.views,
+        "isLiked": article.isLiked,
+        "thumbnail": article.thumbnail,
+        "author": article.author,
+        "tags": [tag.name for tag in article.tags],
+        "enhanced_content": await process_content_endpoint(request_data)
+    }
+
 
 @app.get("/articles/{article_id}", response_model=ArticleOut)
 def read_article(article_id: str, db: Session = Depends(get_db)):

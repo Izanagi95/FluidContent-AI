@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Heart, Eye, Clock, X, SlidersHorizontal } from "lucide-react";
-import { mockApi, Article } from "@/services/ServiceInterface";
+import { Search, Heart, Eye, Clock, X, SlidersHorizontal } from "lucide-react";
+import { Article } from "@/services/ServiceInterface";
 import axios from "axios";
 
 const Articles = () => {
@@ -66,24 +66,6 @@ const toggleTag = (tagName: string) => {
     setSelectedTags([]);
     setSearchQuery('');
   };
-
-  // const handleLike = async (articleId: string) => {
-  //   try {
-  //     const updatedArticle = await mockApi.likeArticle(articleId);
-  //     if (updatedArticle) {
-  //       setArticles(prev => prev.map(article => 
-  //         article.id === articleId ? updatedArticle : article
-  //       ));
-        
-  //       // Add XP for liking an article
-  //       if (updatedArticle.isLiked) {
-  //         //mockApi.addXp(10, 'Liked an article');
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to like article:', error);
-  //   }
-  // };
 
   const handleLike = (articleId: string) => {
     setArticles(prev => prev.map(article => article.id === articleId ? {...article, isLiked: !article.isLiked, likes: article.isLiked ? article.likes - 1 : article.likes + 1 } : article));

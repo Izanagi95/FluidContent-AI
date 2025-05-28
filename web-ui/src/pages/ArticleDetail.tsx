@@ -27,7 +27,7 @@ const ArticleDetail = () => {
         if (!id) return;
 
         try {
-          const response = await axios.get(`http://localhost:8000/articles/${id}`);
+          const response = await axios.get(`http://localhost:8000/enhanced-articles/${id}`);
           const data = response.data;
           setArticle(data);
           
@@ -53,18 +53,6 @@ const ArticleDetail = () => {
     if (!article) return;
     
     try {
-      // const updatedArticle = await mockApi.likeArticle(article.id);
-      // if (updatedArticle) {
-      //   setArticle(updatedArticle);
-        
-      //   if (updatedArticle.isLiked) {
-      //     //mockApi.addXp(10, 'Liked an article');
-      //     toast.success('Article liked! +10 XP', {
-      //       icon: <Heart className="h-4 w-4 text-red-500" />
-      //     });
-      //   }
-      // }
-
       setArticle({...article, isLiked: !article.isLiked, likes: article.isLiked ? article.likes - 1 : article.likes + 1 });
       toast.success('Article liked! +10 XP', {
             icon: <Heart className="h-4 w-4 text-red-500" />
@@ -197,6 +185,38 @@ const ArticleDetail = () => {
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </Card>
+
+        <Card className="p-8">
+          <div 
+            className="prose prose-lg max-w-none"
+            dangerouslySetInnerHTML={{ __html: article.enhanced_content.adapted_text }}
+          />
+        </Card>
+
+        
+        <div className="mt-6 space-y-6">
+          {/* Suggested Title */}
+          <div className="p-6 bg-primary/10 border border-primary rounded-xl shadow">
+            <h3 className="text-xl font-semibold mb-2 text-primary">Suggested Title</h3>
+            <p className="text-lg">{article.enhanced_content.suggested_title}</p>
+          </div>
+
+          {/* Sentiment Analysis */}
+          <div className="p-6 bg-green-50 border border-green-300 rounded-xl shadow">
+            <h3 className="text-xl font-semibold mb-2 text-green-700">Sentiment Analysis</h3>
+            <p className="text-base text-green-800 italic">{article.enhanced_content.sentiment_analysis}</p>
+          </div>
+
+          {/* Key Takeaways */}
+          <div className="p-6 bg-muted rounded-xl shadow-inner">
+            <h3 className="text-xl font-semibold mb-4">Main Takeaways</h3>
+            <ul className="list-disc list-inside space-y-2 text-base">
+              {article.enhanced_content.key_takeaways.map((takeaway, index) => (
+                <li key={index}>{takeaway}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
         {/* Related Articles Section */}
         <div className="mt-12">
