@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { User, X } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface ProfileData {
   user_id: string;
   name: string;
-  age: string;
+  age: number;
   interests: string[];
   preferences: {
     tone: string;
@@ -21,9 +22,9 @@ interface ProfileData {
 
 const ProfileConfigurationCard = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
-    user_id: "user-1",
+    user_id: "1",
     name: "",
-    age: "",
+    age: 25,
     interests: [],
     preferences: {
       tone: "entusiasta e informativo",
@@ -77,10 +78,22 @@ const ProfileConfigurationCard = () => {
   };
 
   const saveProfile = () => {
-    const apiData = {
-      profile: profileData
-    };
-    console.log('Profile data for API:', JSON.stringify(apiData, null, 2));
+
+    console.debug("Saving profile data:", profileData);
+    const body = {
+      user_id: profileData.user_id,
+      name: profileData.name,
+      age_preference: profileData.age,
+      tone_preference: profileData.preferences.tone,
+      length_preference: profileData.preferences.length,
+      format_preference: profileData.preferences.format_preference
+    }
+
+    try {
+    axios.put(`http://localhost:8000/configurations/${body.user_id}`, body);
+    } catch (error) {
+      toast.error("Error saving profile data:", error);
+    }
     toast.success('Profile configuration saved!');
   };
 
