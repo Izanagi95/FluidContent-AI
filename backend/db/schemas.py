@@ -1,6 +1,6 @@
 
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr
 from datetime import date
 
 # Pydantic Schemas
@@ -32,15 +32,10 @@ class UserAchievementOut(UserAchievementBase):
     class Config:
         orm_mode = True
 
-
-RoleType = constr(pattern=r'^(consumer|maker|provider)$')
-
 class UserBase(BaseModel):
-    
-    id: str
     name: str
     email: EmailStr
-    role: RoleType
+    password: str
     avatar: Optional[str] = None
     level: int
     xp: int
@@ -52,10 +47,9 @@ class UserCreate(UserBase):
     pass
 
 class UserUpdate(BaseModel):
-    id: str
     name: Optional[str]
     email: Optional[EmailStr]
-    role: Optional[RoleType]
+    password: Optional[str]
     avatar: Optional[str]
 
 
@@ -114,6 +108,11 @@ class ArticleOut(ArticleBase):
     class Config:
         orm_mode = True
 
+
+class ArticleOutEnhanced(ArticleBase):
+    author: Optional[AuthorOut]
+    tags: List[TagOut] = []
+    enhanced_content: object
 
 class LeaderboardBase(BaseModel):
     id: str

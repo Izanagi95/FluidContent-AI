@@ -1,16 +1,18 @@
 from sqlalchemy import Column, String, Integer, Boolean, Date, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from db.database import Base
+import bcrypt
+import uuid
 
 
 # ORM MODELS
 class User(Base):
     __tablename__ = "Users"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    role = Column(String, nullable=False)
-    avatar = Column(String)
+    password = Column(String, nullable=False)
+    avatar = Column(String, nullable=True)
     level = Column(Integer, nullable=False)
     xp = Column(Integer, nullable=False)
     xpToNext = Column(Integer, nullable=False)
@@ -19,10 +21,19 @@ class User(Base):
     configuration = relationship("Configuration", back_populates="user", uselist=False)
     achievements = relationship("UserAchievement", back_populates="user")
 
+    def set_password(self, plain_password: str):
+        if not plain_password.startswith("$2b$"):
+            self.password = bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        else:
+            self.password = plain_password
+    
+    def check_password(self, plain_password: str) -> bool:
+        return bcrypt.checkpw(plain_password.encode("utf-8"), self.password.encode("utf-8"))
+
 
 class Configuration(Base):
     __tablename__ = "Configurations"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     tone_preference = Column(String, nullable=True)
     length_preference = Column(String, nullable=True)
     format_preference = Column(String, nullable=True)
@@ -33,7 +44,7 @@ class Configuration(Base):
 
 class Achievement(Base):
     __tablename__ = "Achievements"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     icon = Column(String, nullable=False)
@@ -53,7 +64,7 @@ class UserAchievement(Base):
 
 class Author(Base):
     __tablename__ = "Authors"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     avatar = Column(String)
 
@@ -62,7 +73,7 @@ class Author(Base):
 
 class Article(Base):
     __tablename__ = "Articles"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     title = Column(String, nullable=False)
     excerpt = Column(String, nullable=False)
     content = Column(String, nullable=False)
@@ -80,7 +91,7 @@ class Article(Base):
 
 class Tag(Base):
     __tablename__ = "Tags"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, unique=True, nullable=False)
 
     articles = relationship("Article", secondary="ArticleTags", back_populates="tags")
@@ -94,7 +105,7 @@ class ArticleTag(Base):
 
 class Leaderboard(Base):
     __tablename__ = "Leaderboard"
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     avatar = Column(String)
     level = Column(Integer)

@@ -17,7 +17,6 @@ def seed():
         id='1',
         name='Gabriele',
         email='gabbo@ai.com',
-        role='consumer',
         avatar='https://forums.terraria.org/data/avatars/h/197/197802.jpg',
         level=6,
         xp=619,
@@ -25,6 +24,7 @@ def seed():
         totalXp=619,
         joinDate=date(2025, 5, 5)
     )
+    user.set_password('TEST') 
     db.add(user)
 
 

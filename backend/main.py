@@ -1,7 +1,7 @@
 import json
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException, Body, Depends, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Body, Depends, UploadFile, File, Form, status
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from db.model import *
 from db.schemas import (
     UserCreate, UserUpdate, UserOut, 
     AchievementOut, UserAchievementOut, UserAchievementCreate, ConfigurationOut, ConfigurationCreate,
-    ConfigurationBase,
+    ConfigurationBase, ArticleOutEnhanced,
     AchievementCreate, AuthorCreate, AuthorOut, ArticleCreate, ArticleOut, TagCreate, TagOut, LeaderboardOut, LeaderboardCreate
 )
 from db.database import get_db, engine, Base
@@ -19,6 +19,7 @@ from models import (
     SignupRequest, LoginRequest
 )
 from ai_core import process_request
+from datetime import date
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -41,16 +42,60 @@ app.add_middleware(
 
 # Auth
 @app.post("/api/signup")
-def signup(data: SignupRequest):
-    # Implement user creation logic and password hashing
-    # Return mock response for now
-    return {"user": {"id": 1, "email": data.email, "name": data.name}}
+def signup(data: SignupRequest, db: Session = Depends(get_db)):
+    user = UserCreate(
+    name=data.name,
+    email=data.email,
+    password=data.password,
+    avatar="https://forums.terraria.org/data/avatars/h/197/197802.jpg",
+    level=0,
+    xp=0,
+    xpToNext=1000,
+    totalXp=0,
+    joinDate=date.today()
+    )    
+    create_user(user, db)
+    getUser = db.query(User).filter(User.email == data.email).first()
+
+    configuration = ConfigurationCreate(
+    tone_preference="",
+    length_preference="",
+    format_preference="",
+    age_preference=0,
+    user_id=getUser.id
+    )
+    conf_id = create_configuration(configuration, db).id
+
+    return {"user": {"id": getUser.id, "email": data.email, "name": data.name}, "configuration": {"id": conf_id}}
 
 @app.post("/api/login")
-def login(data: LoginRequest):
-    # Implement user verification and password check
-    # Return mock response for now
-    return {"user": {"id": 1, "email": data.email, "name": "John Doe"}}
+def login(data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(email=data.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    
+    if not user.check_password(data.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    
+    return {
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "avatar": user.avatar,
+            "level": user.level,
+            "xp": user.xp,
+            "xpToNext": user.xpToNext,
+            "totalXp": user.totalXp,
+            "joinDate": user.joinDate.isoformat()
+        }
+    }
 
 # Others
 @app.post("/save-draft")
@@ -84,26 +129,23 @@ async def read_root():
 async def process_content_endpoint(request_data: ProcessRequest = Body(...)):
     if not request_data:
         raise HTTPException(status_code=400, detail="Request data not provided.")
-
     response = process_request(request_data)
-
     # Deserializza la stringa JSON in un dizionario Python
     try:
         response_data_dict = json.loads(response.text)
     except json.JSONDecodeError:
         # Logga l'errore e la risposta per il debug
-        print(f"Errore nella deserializzazione JSON da Gemini. Risposta: {response.text}")
         raise HTTPException(status_code=500, detail="Failed to parse JSON response from Gemini API.")
-
     return response_data_dict
 
 # CRUD Users
 @app.post("/users/", response_model=UserOut)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.id == user.id).first()
+    db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="User already exists")
     new_user = User(**user.dict())
+    new_user.set_password(user.password)  # Hash the password
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -348,13 +390,13 @@ def read_articles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
     return db.query(Article).offset(skip).limit(limit).all()
 
 
-@app.get("/enhanced-articles/{article_id}")
-async def asyncread_article(article_id: str, db: Session = Depends(get_db)):
+@app.get("/enhanced-articles/{article_id}/user/{user_id}", response_model=ArticleOutEnhanced)
+async def asyncread_article(article_id: str, user_id: str, db: Session = Depends(get_db)):
     article = db.query(Article).filter(Article.id == article_id).first()
     if not article:
         raise HTTPException(404, "Article not found")
-    configuration = db.query(Configuration).filter(Configuration.id == '1').first()
-    user = db.query(User).filter(User.id == '1').first()
+    configuration = db.query(Configuration).filter(Configuration.user_id == user_id).first()
+    user = db.query(User).filter(User.id == user_id).first()
 
     request_data = ProcessRequest(
         profile=UserProfile(
@@ -362,7 +404,8 @@ async def asyncread_article(article_id: str, db: Session = Depends(get_db)):
             name=user.name,
             age=configuration.age_preference,
             interests=["tecnologia", "sport", "viaggi"],
-            preferences={"lingua": "italiano", "stile": configuration.tone_preference}
+            preferences={"lingua": "italiano", 
+            "stile": configuration.tone_preference}
         ),
         content=ContentInput(
             title=article.title,
@@ -370,6 +413,7 @@ async def asyncread_article(article_id: str, db: Session = Depends(get_db)):
             original_text=article.content
         )
     )
+    print("request_data:", request_data)
     return {
         "id": article.id,
         "title": article.title,
@@ -383,7 +427,7 @@ async def asyncread_article(article_id: str, db: Session = Depends(get_db)):
         "isLiked": article.isLiked,
         "thumbnail": article.thumbnail,
         "author": article.author,
-        "tags": [tag.name for tag in article.tags],
+        "tags": [], # [tag.name for tag in article.tags],
         "enhanced_content": await process_content_endpoint(request_data)
     }
 
@@ -483,9 +527,27 @@ def read_configuration(config_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Configuration not found")
     return config
 
+@app.get("/configurations/user/{user_id}", response_model=ConfigurationOut)
+def read_configuration(user_id: str, db: Session = Depends(get_db)):
+    config = db.query(Configuration).filter(Configuration.user_id == user_id).first()
+    if not config:
+        raise HTTPException(status_code=404, detail="Configuration not found")
+    return config
+
 @app.put("/configurations/{config_id}", response_model=ConfigurationOut)
 def update_configuration(config_id: str, config_in: ConfigurationBase, db: Session = Depends(get_db)):
     config = db.query(Configuration).filter(Configuration.id == config_id).first()
+    if not config:
+        raise HTTPException(status_code=404, detail="Configuration not found")
+    for key, value in config_in.dict(exclude_unset=True).items():
+        setattr(config, key, value)
+    db.commit()
+    db.refresh(config)
+    return config
+
+@app.put("/configurations/user/{user_id}", response_model=ConfigurationOut)
+def update_configuration(user_id: str, config_in: ConfigurationBase, db: Session = Depends(get_db)):
+    config = db.query(Configuration).filter(Configuration.user_id == user_id).first()
     if not config:
         raise HTTPException(status_code=404, detail="Configuration not found")
     for key, value in config_in.dict(exclude_unset=True).items():
