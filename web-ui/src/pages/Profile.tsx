@@ -79,8 +79,6 @@ const Profile = () => {
     );
   }
 
-  const progressPercentage = ((user.totalXp % 1000) / 1000) * 100;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -105,8 +103,9 @@ const Profile = () => {
                 className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-primary/20"
               />
               <Badge className="bg-primary/10 text-primary border-primary/20">
-                {user.role === 'consumer' ? 'Content Consumer' : 
-                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'}
+                {/* {user.role === 'consumer' ? 'Content Consumer' : 
+                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'} */}
+                 Content {localStorage.getItem("userRole") == "" ? "Consumer" : localStorage.getItem("userRole")}
               </Badge>
             </div>
 
