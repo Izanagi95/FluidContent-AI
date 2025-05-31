@@ -18,10 +18,16 @@ const Profile = () => {
     email: ''
   });
 
+  const userData = localStorage.getItem("user");
+  const id = userData ? JSON.parse(userData).id : null;
+
   useEffect(() => {
   const loadUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/users/1');
+      const response = await axios.get('http://localhost:8000/users/' + id);
+      if (response.status !== 200) {
+        throw new Error('Failed to load user');
+      }
       const userData = response.data;
       setUser(userData);
       setFormData({
@@ -35,7 +41,7 @@ const Profile = () => {
     }
   };
   loadUser();
-}, []);
+}, [id]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -45,7 +51,7 @@ const Profile = () => {
     };
 
   try {
-    const response = await axios.put(`http://localhost:8000/users/${user.id}`, newUser);
+    const response = await axios.put(`http://localhost:8000/users/${id}`, newUser);
     const updatedUser = response.data;
     setUser(updatedUser);
     setEditing(false);
@@ -105,7 +111,7 @@ const Profile = () => {
               <Badge className="bg-primary/10 text-primary border-primary/20">
                 {/* {user.role === 'consumer' ? 'Content Consumer' : 
                  user.role === 'maker' ? 'Content Maker' : 'Content Provider'} */}
-                 Content {localStorage.getItem("userRole") == "" ? "Consumer" : localStorage.getItem("userRole")}
+                 Content {localStorage.getItem("userRole") ? localStorage.getItem("userRole") : "Consumer" }
               </Badge>
             </div>
 

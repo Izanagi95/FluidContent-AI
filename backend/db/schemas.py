@@ -59,20 +59,6 @@ class UserOut(UserBase):
     class Config:
         orm_mode = True
 
-
-class AuthorBase(BaseModel):
-    id: str
-    name: str
-    avatar: Optional[str]
-
-class AuthorCreate(AuthorBase):
-    pass
-
-class AuthorOut(AuthorBase):
-    class Config:
-        orm_mode = True
-
-
 class TagBase(BaseModel):
     id: str
     name: str
@@ -86,32 +72,36 @@ class TagOut(TagBase):
 
 
 class ArticleBase(BaseModel):
-    id: str
+    # id: str
     title: str
     excerpt: str
     content: str
     authorId: Optional[str]
+    status: str  # e.g., 'draft', 'published'
     publishDate: date
     readTime: int
     likes: int
     views: int
     isLiked: bool
     thumbnail: Optional[str]
+    tags: str
 
 class ArticleCreate(ArticleBase):
-    tags: List[str] = []
+    pass
+
+class ArticleGet(ArticleBase):
+    id: str
 
 class ArticleOut(ArticleBase):
-    author: Optional[AuthorOut]
-    tags: List[TagOut] = []
-
+    id: str
+    author: Optional[UserOut]
+    
     class Config:
         orm_mode = True
 
 
 class ArticleOutEnhanced(ArticleBase):
-    author: Optional[AuthorOut]
-    tags: List[TagOut] = []
+    author: Optional[UserOut]
     enhanced_content: object
 
 class LeaderboardBase(BaseModel):

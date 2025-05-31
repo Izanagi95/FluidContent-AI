@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import date
 
 from db.database import SessionLocal  # oppure il tuo import corretto
-from db.model import User, Achievement, UserAchievement, Author, Article, Tag, ArticleTag, Leaderboard, Configuration
+from db.model import User, Achievement, UserAchievement, Article, Leaderboard, Configuration
 
 def seed():
     db: Session = SessionLocal()
@@ -13,31 +13,56 @@ def seed():
         return
 
     # Users
-    user = User(
-        id='1',
-        name='Gabriele',
-        email='gabbo@ai.com',
-        avatar='https://forums.terraria.org/data/avatars/h/197/197802.jpg',
-        level=6,
-        xp=619,
-        xpToNext=81,
-        totalXp=619,
-        joinDate=date(2025, 5, 5)
-    )
-    user.set_password('TEST') 
-    db.add(user)
+    users_data = [
+        {
+            "id": "1",
+            "name": "Gabriele",
+            "email": "gabbo@ai.com",
+            "avatar": "https://forums.terraria.org/data/avatars/h/197/197802.jpg",
+            "level": 6,
+            "xp": 619,
+            "xpToNext": 81,
+            "totalXp": 619,
+            "joinDate": date(2025, 5, 5)
+        },
+        {
+            "id": "a1",
+            "name": "Sarah Johnson",
+            "email": "sarah@ai.com",
+            "avatar": "https://images.unsplash.com/photo-1742234857006-ceaba909665c?w=100&h=100&fit=crop"
+        },
+        {
+            "id": "a2",
+            "name": "Paolo",
+            "email": "paolo@ai.com",
+            "avatar": "https://www.plai-accelerator.com/content/uploads/2024/05/ruscitti-e1715625676685.jpg"
+        },
+        {
+            "id": "a3",
+            "name": "Emma Wilson",
+            "email": "emma@ai.com",
+            "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
+        }
+    ]
 
+    # Creazione utenti
+    users = []
+    configs = []
+    for data in users_data:
+        user = User(**data)
+        user.set_password("TEST")
+        db.add(user)
+        users.append(user)
 
-    # Configurations (new)
-    config = Configuration(
-        id='1',
+        configs.append(Configuration(
         tone_preference='friendly',
         length_preference='short',
         format_preference='text',
         age_preference=30,
         user=user  # link configuration to user
-    )
-    db.add(config)
+    ))
+
+    db.add_all(configs)
 
     # Achievements
     achievements = [
@@ -52,14 +77,6 @@ def seed():
         UserAchievement(userId='1', achievementId='2', unlockedAt=date(2025, 5, 20))
     ]
     db.add_all(user_achievements)
-
-    # Authors
-    authors = [
-        Author(id='a1', name='Sarah Johnson', avatar='https://images.unsplash.com/photo-1742234857006-ceaba909665c?w=100&h=100&fit=crop'),
-        Author(id='a2', name='Paolo', avatar='https://www.plai-accelerator.com/content/uploads/2024/05/ruscitti-e1715625676685.jpg'),
-        Author(id='a3', name='Emma Wilson', avatar='https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop')
-    ]
-    db.add_all(authors)
 
     # Articles
     articles = [
@@ -83,13 +100,15 @@ def seed():
                 <h2>Conclusion</h2>
                 <p>The future of web development is exciting and full of possibilities. By staying informed about these trends, developers can build better, more efficient, and more user-friendly applications.</p>
             """,
+            status='published',
             authorId='a1',
             publishDate=date(2024, 1, 25),
             readTime=8,
             likes=234,
             views=1520,
             isLiked=False,
-            thumbnail='https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop'
+            thumbnail='https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop',
+            tags=", ".join(["Technology", "Web Development", "AI"])
         ),
         Article(
             id='2',
@@ -105,13 +124,15 @@ def seed():
                 <h2>Implementation Strategy</h2>
                 <p>Start small with core components and gradually expand. Ensure buy-in from stakeholders and maintain comprehensive documentation.</p>
             """,
+            status='published',
             authorId='a2',
             publishDate=date(2024, 1, 23),
             readTime=12,
             likes=189,
             views=945,
             isLiked=True,
-            thumbnail='https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop'
+            thumbnail='https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop',
+            tags=", ".join(["Design", "Systems", "UX"])
         ),
         Article(
             id='3',
@@ -127,33 +148,18 @@ def seed():
                 <h2>Measuring Performance</h2>
                 <p>Use React DevTools Profiler and browser performance tools to identify bottlenecks in your applications.</p>
             """,
+            status='published',
             authorId='a3',
             publishDate=date(2024, 1, 22),
             readTime=15,
             likes=312,
             views=2100,
             isLiked=False,
-            thumbnail='https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop'
+            thumbnail='https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop',
+            tags=", ".join(["React", "Performance", "JavaScript"])
         )
     ]
     db.add_all(articles)
-
-    # Tags
-    tags = [
-        Tag(id='t1', name='Technology'), Tag(id='t2', name='Web Development'), Tag(id='t3', name='AI'),
-        Tag(id='t4', name='Design'), Tag(id='t5', name='UX'), Tag(id='t6', name='Systems'),
-        Tag(id='t7', name='React'), Tag(id='t8', name='Performance'), Tag(id='t9', name='JavaScript')
-    ]
-    db.add_all(tags)
-
-    # ArticleTags
-    article_tags = [
-        ArticleTag(articleId='1', tagId='t1'), ArticleTag(articleId='1', tagId='t2'), ArticleTag(articleId='1', tagId='t3'),
-        ArticleTag(articleId='2', tagId='t4'), ArticleTag(articleId='2', tagId='t5'), ArticleTag(articleId='2', tagId='t6'),
-        ArticleTag(articleId='3', tagId='t7'), ArticleTag(articleId='3', tagId='t8'), ArticleTag(articleId='3', tagId='t9')
-    ]
-    db.add_all(article_tags)
-
     # Leaderboard
     leaderboard_entries = [
         Leaderboard(

@@ -8,10 +8,11 @@ from sqlalchemy.orm import Session
 from db.model import *
 from db.schemas import (
     UserCreate, UserUpdate, UserOut, 
-    AchievementOut, UserAchievementOut, UserAchievementCreate, ConfigurationOut, ConfigurationCreate,
-    ConfigurationBase, ArticleOutEnhanced,
-    AchievementCreate, AuthorCreate, AuthorOut, ArticleCreate, ArticleOut, TagCreate, TagOut, LeaderboardOut, LeaderboardCreate
-)
+    AchievementOut, UserAchievementOut, UserAchievementCreate, 
+    ConfigurationOut, ConfigurationCreate,
+    ConfigurationBase, ArticleOutEnhanced, ArticleGet,
+    AchievementCreate, ArticleCreate, ArticleOut, 
+    LeaderboardOut, LeaderboardCreate)
 from db.database import get_db, engine, Base
 from db.seed import seed
 from models import (
@@ -98,15 +99,15 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     }
 
 # Others
-@app.post("/save-draft")
-async def save_draft(
+@app.post("/save_article/", status_code=status.HTTP_201_CREATED)
+async def save_article(
     title: str = Form(...),
     content: str = Form(...),
-    images: List[UploadFile] = File(default=[])
+    status: str = Form(...),  # e.g., 'draft', 'published'
+    user_id: str = Form(...),
+    images: List[UploadFile] = File(default=[]),
+    db: Session = Depends(get_db)
 ):
-    print(f"Title: {title}")
-    print(f"Content: {content}")
-    print(f"Received {len(images)} images")
 
     # TODO - save in DB
     os.makedirs("uploads", exist_ok=True)
@@ -115,7 +116,23 @@ async def save_draft(
         with open(f"uploads/{image.filename}", "wb") as f:
             f.write(contents)
 
-    return {"status": "draft saved"}
+    print("status:", status)
+    create_article(ArticleCreate(
+        title=title,
+        excerpt=content[:100],
+        content=content,
+        status=status,
+        authorId=user_id,  
+        publishDate=date.today(),
+        readTime=int(len(content)/150),  
+        likes=0,
+        views=0,
+        isLiked=False,
+        thumbnail="",  
+        tags="" 
+    ),db)
+
+    return {"status": "article saved"}
 
 @app.get("/")
 async def read_root():
@@ -270,101 +287,13 @@ def delete_userachievement(user_id: str, achievement_id: str, db: Session = Depe
     db.commit()
     return {"detail": "UserAchievement deleted"}
 
-
-# CRUD Authors
-@app.post("/authors/", response_model=AuthorOut)
-def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
-    db_author = db.query(Author).filter(Author.id == author.id).first()
-    if db_author:
-        raise HTTPException(400, "Author already exists")
-    new_author = Author(**author.dict())
-    db.add(new_author)
-    db.commit()
-    db.refresh(new_author)
-    return new_author
-
-@app.get("/authors/", response_model=List[AuthorOut])
-def read_authors(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(Author).offset(skip).limit(limit).all()
-
-@app.get("/authors/{author_id}", response_model=AuthorOut)
-def read_author(author_id: str, db: Session = Depends(get_db)):
-    author = db.query(Author).filter(Author.id == author_id).first()
-    if not author:
-        raise HTTPException(404, "Author not found")
-    return author
-
-@app.put("/authors/{author_id}", response_model=AuthorOut)
-def update_author(author_id: str, author: AuthorCreate, db: Session = Depends(get_db)):
-    db_author = db.query(Author).filter(Author.id == author_id).first()
-    if not db_author:
-        raise HTTPException(404, "Author not found")
-    for key, value in author.dict().items():
-        setattr(db_author, key, value)
-    db.commit()
-    db.refresh(db_author)
-    return db_author
-
-@app.delete("/authors/{author_id}")
-def delete_author(author_id: str, db: Session = Depends(get_db)):
-    db_author = db.query(Author).filter(Author.id == author_id).first()
-    if not db_author:
-        raise HTTPException(404, "Author not found")
-    db.delete(db_author)
-    db.commit()
-    return {"detail": "Author deleted"}
-
-# CRUD Tags
-@app.post("/tags/", response_model=TagOut)
-def create_tag(tag: TagCreate, db: Session = Depends(get_db)):
-    db_tag = db.query(Tag).filter(Tag.id == tag.id).first()
-    if db_tag:
-        raise HTTPException(400, "Tag already exists")
-    new_tag = Tag(**tag.dict())
-    db.add(new_tag)
-    db.commit()
-    db.refresh(new_tag)
-    return new_tag
-
-@app.get("/tags/", response_model=List[TagOut])
-def read_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(Tag).offset(skip).limit(limit).all()
-
-@app.get("/tags/{tag_id}", response_model=TagOut)
-def read_tag(tag_id: str, db: Session = Depends(get_db)):
-    tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    if not tag:
-        raise HTTPException(404, "Tag not found")
-    return tag
-
-@app.put("/tags/{tag_id}", response_model=TagOut)
-def update_tag(tag_id: str, tag: TagCreate, db: Session = Depends(get_db)):
-    db_tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    if not db_tag:
-        raise HTTPException(404, "Tag not found")
-    for key, value in tag.dict().items():
-        setattr(db_tag, key, value)
-    db.commit()
-    db.refresh(db_tag)
-    return db_tag
-
-@app.delete("/tags/{tag_id}")
-def delete_tag(tag_id: str, db: Session = Depends(get_db)):
-    db_tag = db.query(Tag).filter(Tag.id == tag_id).first()
-    if not db_tag:
-        raise HTTPException(404, "Tag not found")
-    db.delete(db_tag)
-    db.commit()
-    return {"detail": "Tag deleted"}
-
 # CRUD Articles (with tags handling)
 @app.post("/articles/", response_model=ArticleOut)
 def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
-    db_article = db.query(Article).filter(Article.id == article.id).first()
-    if db_article:
-        raise HTTPException(400, "Article already exists")
+    # db_article = db.query(Article).filter(ArticleGet.id == article.id).first()
+    # if db_article:
+    #     raise HTTPException(400, "Article already exists")
     new_article = Article(
-        id=article.id,
         title=article.title,
         excerpt=article.excerpt,
         content=article.content,
@@ -375,10 +304,8 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
         views=article.views,
         isLiked=article.isLiked,
         thumbnail=article.thumbnail,
+        tags=article.tags  # Assuming tags is a comma-separated string
     )
-    # associate tags
-    tags = db.query(Tag).filter(Tag.id.in_(article.tags)).all()
-    new_article.tags = tags
 
     db.add(new_article)
     db.commit()
@@ -400,7 +327,7 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
 
     request_data = ProcessRequest(
         profile=UserProfile(
-            user_id=configuration.user_id,
+            user_id=user.id,
             name=user.name,
             age=configuration.age_preference,
             interests=["tecnologia", "sport", "viaggi"],
@@ -422,12 +349,13 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
         "authorId": article.authorId,
         "publishDate": article.publishDate,
         "readTime": article.readTime,
+        "status": article.status,
         "likes": article.likes,
         "views": article.views,
         "isLiked": article.isLiked,
         "thumbnail": article.thumbnail,
         "author": article.author,
-        "tags": [], # [tag.name for tag in article.tags],
+        "tags": "", # [tag.name for tag in article.tags],
         "enhanced_content": await process_content_endpoint(request_data)
     }
 
@@ -439,15 +367,18 @@ def read_article(article_id: str, db: Session = Depends(get_db)):
         raise HTTPException(404, "Article not found")
     return article
 
+@app.get("/articles/user/{user_id}", response_model=List[ArticleOut])
+def read_article(user_id: str, db: Session = Depends(get_db)):
+    article = db.query(Article).filter(Article.authorId == user_id).all()
+    if not article:
+        raise HTTPException(404, "Article not found")
+    return article
+
 @app.put("/articles/{article_id}", response_model=ArticleOut)
 def update_article(article_id: str, article: ArticleCreate, db: Session = Depends(get_db)):
     db_article = db.query(Article).filter(Article.id == article_id).first()
     if not db_article:
         raise HTTPException(404, "Article not found")
-    for key, value in article.dict(exclude={"tags"}).items():
-        setattr(db_article, key, value)
-    tags = db.query(Tag).filter(Tag.id.in_(article.tags)).all()
-    db_article.tags = tags
     db.commit()
     db.refresh(db_article)
     return db_article

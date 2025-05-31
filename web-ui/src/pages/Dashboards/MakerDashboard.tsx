@@ -24,6 +24,8 @@ import { toast } from "sonner";
       setMediaFiles([]);
     }
 
+  const id = JSON.parse(localStorage.getItem("user") || "{}").id;
+
   const handleMediaUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
@@ -36,25 +38,27 @@ import { toast } from "sonner";
     setMediaFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSaveDraft = async () => {
+  const handleSave = async () => {
     const formData = new FormData();
+    formData.append("user_id", id);
     formData.append("title", title);
     formData.append("content", content);
+    formData.append("status", "published");
     mediaFiles.forEach((img) => formData.append("images", img));
 
     let res;
     try {
-      res = await fetch("http://localhost:8000/save-draft", {
+      res = await fetch("http://localhost:8000/save_article", {
       method: "POST",
       body: formData,
     });
     } catch (error) {
-      console.error("Error saving draft:", error);
-      toast.error("Error saving draft:", error.message);
+      console.error("Error saving article:", error);
+      toast.error("Error saving article:", error.message);
     }
 
     if (res.ok) {
-      toast.success("Draft saved!");
+      toast.success("Article published!");
       clearInputs();
     } else {
       toast.error("Error saving draft.");
@@ -170,7 +174,7 @@ import { toast } from "sonner";
                 Add Interest Tags
               </Button> */}
             </div>
-            <Button onClick={handleSaveDraft} className="bg-gradient-primary">Save Draft</Button>
+            <Button onClick={handleSave} className="bg-gradient-primary">Save</Button>
           </div>
         </div>
           <div className="flex flex-wrap gap-2 mt-2">

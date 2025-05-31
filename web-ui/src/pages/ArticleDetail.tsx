@@ -44,11 +44,14 @@ const ArticleDetail = () => {
       return;
     }
 
+const userData = localStorage.getItem("user");
+const userId = userData ? JSON.parse(userData).id : null;
+
 const loadArticle = async () => {
         if (!id) return;
 
         try {
-          const response = await axios.get(`http://localhost:8000/enhanced-articles/${id}`);
+          const response = await axios.get(`http://localhost:8000/enhanced-articles/${id}/user/${userId}`);
           const data = response.data;
           setArticle({...data, enhanced_content: {...data.enhanced_content, quiz: [
               {
@@ -66,7 +69,9 @@ const loadArticle = async () => {
                 options: ["Natural talent", "Expensive courses", "Regular practice and iteration", "Perfect planning"],
                 correct_answer: 2
               }
-            ]}});
+            ]},
+            tags: data.tags == "" ? [] : data.tags.split(",").map((tag: string) => tag.trim())
+          });
           
           // Add XP for reading an article
           if (data) {
