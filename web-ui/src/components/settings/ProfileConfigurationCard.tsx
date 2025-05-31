@@ -27,7 +27,7 @@ const ProfileConfigurationCard = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
     user_id: id,
     name: "",
-    age: 25,
+    age: 18,
     interests: [],
     preferences: {
       tone: "entusiasta e informativo",
@@ -92,8 +92,8 @@ const ProfileConfigurationCard = () => {
         setProfileData({
           user_id: data.user_id,
           name: data.name,
-          age: data.age,
-          interests: data.interests || [],
+          age: data.age_preference,
+          interests: data.interests ? data.interests == "" ? [] : data.interests.split(",") : [], 
           preferences: {
             tone: data.tone_preference,
             length: data.length_preference,
@@ -109,6 +109,7 @@ const ProfileConfigurationCard = () => {
   }, []);
 
   const saveProfile = async () => {
+    console.debug("Saving profile data:", profileData);
     const body = {
       user_id: profileData.user_id,
       name: profileData.name,
@@ -116,6 +117,7 @@ const ProfileConfigurationCard = () => {
       tone_preference: profileData.preferences.tone,
       length_preference: profileData.preferences.length,
       format_preference: profileData.preferences.format_preference,
+      interests: profileData.interests.join(",")
     };
 
     try {
@@ -135,14 +137,6 @@ const ProfileConfigurationCard = () => {
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <Input
-              value={profileData.name}
-              onChange={(e) => handleProfileChange("name", e.target.value)}
-              placeholder="Your name"
-            />
-          </div>
           <div>
             <label className="block text-sm font-medium mb-2">Age</label>
             <Input

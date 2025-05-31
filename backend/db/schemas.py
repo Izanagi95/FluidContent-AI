@@ -127,6 +127,7 @@ class ConfigurationBase(BaseModel):
     length_preference: str | None = None
     format_preference: str | None = None
     age_preference: int | None = None
+    interests: str | None = None  # Assuming interests is a comma-separated string
 
 class ConfigurationCreate(ConfigurationBase):
     user_id: str  # link to user on creation

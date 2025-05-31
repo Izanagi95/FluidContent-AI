@@ -40,7 +40,8 @@ class Configuration(Base):
     length_preference = Column(String, nullable=True)
     format_preference = Column(String, nullable=True)
     age_preference = Column(Integer, nullable=True)
-    user_id = Column(String, ForeignKey("Users.id"), nullable=False, unique=True)  # <-- add this line
+    interests = Column(String, nullable=True) 
+    user_id = Column(String, ForeignKey("Users.id"), nullable=False, unique=True)
     user =  relationship("User", back_populates="configuration",  uselist=False)
 
 
