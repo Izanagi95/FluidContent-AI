@@ -86,7 +86,7 @@ const ProfileConfigurationCard = () => {
 
     const loadProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/configurations/user/${id}`);
+        const response = await axios.get(import.meta.env.VITE_API_URL + `/configurations/user/${id}`);
         const data = response.data;
 
         setProfileData({
@@ -121,7 +121,7 @@ const ProfileConfigurationCard = () => {
     };
 
     try {
-      await axios.put(`http://localhost:8000/configurations/user/${body.user_id}`, body);
+      await axios.put(`${import.meta.env.VITE_API_URL}/configurations/user/${body.user_id}`, body);
       toast.success("Profile configuration saved!");
     } catch (error) {
       toast.error("Error saving profile data.");

@@ -27,7 +27,7 @@ const Articles = () => {
 
       const loadArticles = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/articles');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/articles`);
         const articleData = response.data;
         const parsedArticles = articleData.map(article => ({
         ...article,

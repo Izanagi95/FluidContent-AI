@@ -48,7 +48,7 @@ import { toast } from "sonner";
 
     let res;
     try {
-      res = await fetch("http://localhost:8000/save_article", {
+      res = await fetch(`${import.meta.env.VITE_API_URL}/save_article`, {
       method: "POST",
       body: formData,
     });

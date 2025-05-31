@@ -35,7 +35,7 @@ const MyArticles = () => {
   useEffect(() => {
   const loadArticles = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/articles/user/' + id);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/articles/user/` + id);
       console.debug('Response data:', response.data);
       if (response.status !== 200) {
         throw new Error('Failed to load user');

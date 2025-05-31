@@ -24,7 +24,7 @@ const Profile = () => {
   useEffect(() => {
   const loadUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/users/' + id);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/` + id);
       if (response.status !== 200) {
         throw new Error('Failed to load user');
       }
@@ -51,7 +51,7 @@ const Profile = () => {
     };
 
   try {
-    const response = await axios.put(`http://localhost:8000/users/${id}`, newUser);
+    const response = await axios.put(`${import.meta.env.VITE_API_URL}/users/${id}`, newUser);
     const updatedUser = response.data;
     setUser(updatedUser);
     setEditing(false);

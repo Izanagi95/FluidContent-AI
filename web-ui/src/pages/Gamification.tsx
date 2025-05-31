@@ -14,7 +14,7 @@ const Gamification = () => {
   useEffect(() => {
   const loadUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/users/1');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/1`);
       const userData = response.data;
       setUser(userData);
     } catch (error) {

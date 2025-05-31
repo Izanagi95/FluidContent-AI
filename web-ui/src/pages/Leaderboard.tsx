@@ -20,7 +20,7 @@ const Leaderboard = () => {
 useEffect(() => {
   const loadLeaderboard = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/leaderboard`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/leaderboard`, {
         params: { timeframe } // if your API supports filtering by timeframe via query params
       });
       setLeaderboard(response.data);

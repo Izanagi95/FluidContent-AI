@@ -51,7 +51,7 @@ const loadArticle = async () => {
         if (!id) return;
 
         try {
-          const response = await axios.get(`http://localhost:8000/enhanced-articles/${id}/user/${userId}`);
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/enhanced-articles/${id}/user/${userId}`);
           const data = response.data;
           setArticle({...data, enhanced_content: {...data.enhanced_content, quiz: [
               {
