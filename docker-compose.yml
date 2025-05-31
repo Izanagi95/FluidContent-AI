@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # backend:
+  #   build:
+  #     context: ./backend
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./backend:/app  # per hot reload
+  #   environment:
+  #     PYTHONUNBUFFERED: '1'
+  #   restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile  # togli se si chiama così
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web-ui:/app  # per hot reload
+    environment:
+      CHOKIDAR_USEPOLLING: 'true'
+    restart: unless-stopped
