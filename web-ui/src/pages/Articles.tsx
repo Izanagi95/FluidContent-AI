@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Heart, Eye, Clock, X, SlidersHorizontal } from "lucide-react";
 import { Article } from "@/services/ServiceInterface";
 import axios from "axios";
+import { toast } from "sonner";
 
 const Articles = () => {
   const navigate = useNavigate();
@@ -33,10 +34,9 @@ const Articles = () => {
         ...article,
         tags: (article.tags ?? "").split(",").map(tag => tag.trim()).filter(Boolean)
       }));
-
       setArticles(parsedArticles);
       } catch (error) {
-        console.error('Failed to load articles:', error);
+        toast.error('Failed to load articles:', error);
       } finally {
         setLoading(false);
       }
@@ -47,8 +47,7 @@ const Articles = () => {
 
 
 // allTags ora sono i nomi unici dei tag
-const allTags = [...new Set(articles.flatMap(article => article.tags.map(tag => tag.name)))];
-
+const allTags = [...new Set(articles.flatMap(article => article.tags.map(tag => tag)))];
 const filteredArticles = articles.filter(article => {
   const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -197,12 +196,12 @@ const toggleTag = (tagName: string) => {
                   <div className="flex items-center gap-2 mb-3">
                   {article.tags.map((tag) => (
                   <Badge 
-                    key={tag.id}
+                    key={tag}
                     variant="secondary"
                     className="cursor-pointer hover:bg-primary/10"
-                    onClick={() => toggleTag(tag.name)}
+                    onClick={() => toggleTag(tag)}
                   >
-                    {tag.name}
+                    {tag}
                   </Badge>
                 ))}
                   </div>

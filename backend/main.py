@@ -19,7 +19,7 @@ from models import (
     ProcessRequest, UserProfile, ContentInput, ErrorResponse,
     SignupRequest, LoginRequest
 )
-from ai_core import process_request
+from ai_core import process_request, extract_tags, ArticleInput
 from datetime import date
 
 # --- Inizializzazione dell'app FastAPI ---
@@ -287,12 +287,17 @@ def delete_userachievement(user_id: str, achievement_id: str, db: Session = Depe
     db.commit()
     return {"detail": "UserAchievement deleted"}
 
-# CRUD Articles (with tags handling)
+# CRUD Articles
 @app.post("/articles/", response_model=ArticleOut)
 def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
-    # db_article = db.query(Article).filter(ArticleGet.id == article.id).first()
-    # if db_article:
-    #     raise HTTPException(400, "Article already exists")
+
+    article_input= ArticleInput(
+        article_text=article.content,
+        article_title=article.title
+    )
+
+    article_tags = extract_tags(article_input)
+
     new_article = Article(
         title=article.title,
         excerpt=article.excerpt,
@@ -304,7 +309,7 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
         views=article.views,
         isLiked=article.isLiked,
         thumbnail=article.thumbnail,
-        tags=article.tags  # Assuming tags is a comma-separated string
+        tags = ",".join(article_tags.tags)
     )
 
     db.add(new_article)
