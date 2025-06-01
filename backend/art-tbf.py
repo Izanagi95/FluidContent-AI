@@ -58,12 +58,12 @@ def extract_tags_with_gemini(article: ArticleInput) -> ArticleTags:
 
     Article Title:
     ---
-    {article["article_title"]}
+    {article.article_title}
     ---
 
     Article Text:
     ---
-    {article['article_text']}
+    {article.article_text}
     ---
 
     Provide your output as a JSON object:
@@ -74,15 +74,16 @@ def extract_tags_with_gemini(article: ArticleInput) -> ArticleTags:
     response = genai.Client(api_key=GEMINI_API_KEY).models.generate_content(
         model="gemini-2.0-flash",
         contents=prompt,
-        # config={
-        #     "response_mime_type": "application/json",
-        #     "response_schema": ArticleTags,
-        # },
+        config={
+            "response_mime_type": "application/json",
+            "response_schema": ArticleTags,
+        },
     )
-    # response_data_dict = json.loads(response.text)
+    response_data_dict = json.loads(response.text)
     # print(response_data_dict)
-    print(response)
-    return response
+    # print(response_data_dict['tags'])
+    article_tags = ArticleTags(**response_data_dict)
+    return article_tags
 
 
 # --- Definizione dell'API con FastAPI ---
