@@ -2,6 +2,8 @@
 /streamlit_old/
 /uploads/
 /backend/uploads/
+/backend/generated_html_files/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
