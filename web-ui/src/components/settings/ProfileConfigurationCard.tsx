@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { User, X } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface ProfileData {
   user_id: string;
   name: string;
-  age: string;
+  age: number;
   interests: string[];
   preferences: {
     tone: string;
@@ -19,69 +20,112 @@ interface ProfileData {
   };
 }
 
+const userData = localStorage.getItem("user");
+const id = userData ? JSON.parse(userData).id : null;
+
 const ProfileConfigurationCard = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
-    user_id: "user-1",
+    user_id: id,
     name: "",
-    age: "",
+    age: 18,
     interests: [],
     preferences: {
       tone: "entusiasta e informativo",
       length: "conciso",
-      format_preference: "articoli con punti elenco"
-    }
+      format_preference: "articoli con punti elenco",
+    },
   });
 
   const [newInterest, setNewInterest] = useState("");
 
   const handleProfileChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setProfileData(prev => ({
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setProfileData((prev) => ({
         ...prev,
         [parent]: {
           ...(prev[parent as keyof ProfileData] as object),
-          [child]: value
-        }
+          [child]: value,
+        },
       }));
     } else {
-      setProfileData(prev => ({
+      setProfileData((prev) => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
 
   const addInterest = () => {
-    if (newInterest.trim() && !profileData.interests.includes(newInterest.trim())) {
-      setProfileData(prev => ({
+    const trimmed = newInterest.trim();
+    if (trimmed && !profileData.interests.includes(trimmed)) {
+      setProfileData((prev) => ({
         ...prev,
-        interests: [...prev.interests, newInterest.trim()]
+        interests: [...prev.interests, trimmed],
       }));
       setNewInterest("");
     }
   };
 
   const removeInterest = (interest: string) => {
-    setProfileData(prev => ({
+    setProfileData((prev) => ({
       ...prev,
-      interests: prev.interests.filter(i => i !== interest)
+      interests: prev.interests.filter((i) => i !== interest),
     }));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       addInterest();
     }
   };
 
-  const saveProfile = () => {
-    const apiData = {
-      profile: profileData
+  useEffect(() => {
+    if (!id) return;
+
+    const loadProfile = async () => {
+      try {
+        const response = await axios.get(import.meta.env.VITE_API_URL + `/configurations/user/${id}`);
+        const data = response.data;
+
+        setProfileData({
+          user_id: data.user_id,
+          name: data.name,
+          age: data.age_preference,
+          interests: data.interests ? data.interests == "" ? [] : data.interests.split(",") : [], 
+          preferences: {
+            tone: data.tone_preference,
+            length: data.length_preference,
+            format_preference: data.format_preference,
+          },
+        });
+      } catch (err) {
+        toast.error("Errore nel caricamento del profilo.");
+      }
     };
-    console.log('Profile data for API:', JSON.stringify(apiData, null, 2));
-    toast.success('Profile configuration saved!');
+
+    loadProfile();
+  }, []);
+
+  const saveProfile = async () => {
+    console.debug("Saving profile data:", profileData);
+    const body = {
+      user_id: profileData.user_id,
+      name: profileData.name,
+      age_preference: profileData.age,
+      tone_preference: profileData.preferences.tone,
+      length_preference: profileData.preferences.length,
+      format_preference: profileData.preferences.format_preference,
+      interests: profileData.interests.join(",")
+    };
+
+    try {
+      await axios.put(`${import.meta.env.VITE_API_URL}/configurations/user/${body.user_id}`, body);
+      toast.success("Profile configuration saved!");
+    } catch (error) {
+      toast.error("Error saving profile data.");
+    }
   };
 
   return (
@@ -90,27 +134,19 @@ const ProfileConfigurationCard = () => {
         <User className="h-5 w-5" />
         Content Configuration
       </h3>
-      
+
       <div className="space-y-6">
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Name</label>
-            <Input
-              value={profileData.name}
-              onChange={(e) => handleProfileChange('name', e.target.value)}
-              placeholder="Your name"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Age</label>
             <Input
               type="number"
               value={profileData.age}
-              onChange={(e) => handleProfileChange('age', parseInt(e.target.value) || '')}
+              onChange={(e) => handleProfileChange("age", parseInt(e.target.value) || 0)}
               placeholder="Your age"
             />
           </div>
-        </div> */}
+        </div>
 
         <div>
           <label className="block text-sm font-medium mb-2">Interests</label>
@@ -125,8 +161,8 @@ const ProfileConfigurationCard = () => {
               {profileData.interests.map((interest) => (
                 <Badge key={interest} variant="secondary" className="flex items-center gap-1">
                   {interest}
-                  <X 
-                    className="h-3 w-3 cursor-pointer hover:text-red-500" 
+                  <X
+                    className="h-3 w-3 cursor-pointer hover:text-red-500"
                     onClick={() => removeInterest(interest)}
                   />
                 </Badge>
@@ -140,7 +176,7 @@ const ProfileConfigurationCard = () => {
             <label className="block text-sm font-medium mb-2">Tone</label>
             <Select
               value={profileData.preferences.tone}
-              onValueChange={(value) => handleProfileChange('preferences.tone', value)}
+              onValueChange={(value) => handleProfileChange("preferences.tone", value)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -153,12 +189,12 @@ const ProfileConfigurationCard = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-2">Length</label>
             <Select
               value={profileData.preferences.length}
-              onValueChange={(value) => handleProfileChange('preferences.length', value)}
+              onValueChange={(value) => handleProfileChange("preferences.length", value)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -170,12 +206,12 @@ const ProfileConfigurationCard = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-2">Format</label>
             <Select
               value={profileData.preferences.format_preference}
-              onValueChange={(value) => handleProfileChange('preferences.format_preference', value)}
+              onValueChange={(value) => handleProfileChange("preferences.format_preference", value)}
             >
               <SelectTrigger>
                 <SelectValue />

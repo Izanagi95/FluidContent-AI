@@ -22,7 +22,7 @@ const Auth = () => {
     name: ''
   });
 
-const BASE_URL = 'http://localhost:8000/api'; // adjust this based on your FastAPI host
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api`; // adjust this based on your FastAPI host
 
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();

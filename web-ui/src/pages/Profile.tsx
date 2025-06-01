@@ -18,10 +18,16 @@ const Profile = () => {
     email: ''
   });
 
+  const userData = localStorage.getItem("user");
+  const id = userData ? JSON.parse(userData).id : null;
+
   useEffect(() => {
   const loadUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/users/1');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/` + id);
+      if (response.status !== 200) {
+        throw new Error('Failed to load user');
+      }
       const userData = response.data;
       setUser(userData);
       setFormData({
@@ -35,7 +41,7 @@ const Profile = () => {
     }
   };
   loadUser();
-}, []);
+}, [id]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -45,7 +51,7 @@ const Profile = () => {
     };
 
   try {
-    const response = await axios.put(`http://localhost:8000/users/${user.id}`, newUser);
+    const response = await axios.put(`${import.meta.env.VITE_API_URL}/users/${id}`, newUser);
     const updatedUser = response.data;
     setUser(updatedUser);
     setEditing(false);
@@ -79,8 +85,6 @@ const Profile = () => {
     );
   }
 
-  const progressPercentage = ((user.totalXp % 1000) / 1000) * 100;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -105,8 +109,9 @@ const Profile = () => {
                 className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-primary/20"
               />
               <Badge className="bg-primary/10 text-primary border-primary/20">
-                {user.role === 'consumer' ? 'Content Consumer' : 
-                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'}
+                {/* {user.role === 'consumer' ? 'Content Consumer' : 
+                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'} */}
+                 Content {localStorage.getItem("userRole") ? localStorage.getItem("userRole") : "Consumer" }
               </Badge>
             </div>
 

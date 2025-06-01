@@ -27,8 +27,14 @@ const Articles = () => {
 
       const loadArticles = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/articles');
-        setArticles(response.data);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/articles`);
+        const articleData = response.data;
+        const parsedArticles = articleData.map(article => ({
+        ...article,
+        tags: (article.tags ?? "").split(",").map(tag => tag.trim()).filter(Boolean)
+      }));
+
+      setArticles(parsedArticles);
       } catch (error) {
         console.error('Failed to load articles:', error);
       } finally {

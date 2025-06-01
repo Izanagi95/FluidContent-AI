@@ -9,6 +9,8 @@ import { Article } from "@/services/ServiceInterface";
 import { toast } from "sonner";
 import axios from "axios";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { marked } from 'marked';
+
 
 interface EnhancedContent {
   adapted_text: string;
@@ -27,8 +29,6 @@ const ArticleDetail = () => {
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
-  const [enhancedContent, setEnhancedContent] = useState<EnhancedContent | null>(null);
-  const [loadingEnhanced, setLoadingEnhanced] = useState(false);
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<{[key: number]: number}>({});
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [showIframe, setShowIframe] = useState(false);
@@ -44,13 +44,34 @@ const ArticleDetail = () => {
       return;
     }
 
+const userData = localStorage.getItem("user");
+const userId = userData ? JSON.parse(userData).id : null;
+
 const loadArticle = async () => {
         if (!id) return;
 
         try {
-          const response = await axios.get(`http://localhost:8000/enhanced-articles/${id}`);
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/enhanced-articles/${id}/user/${userId}`);
           const data = response.data;
-          setArticle(data);
+          setArticle({...data, enhanced_content: {...data.enhanced_content, quiz: [
+              {
+                question: "What is the most important factor for successful implementation?",
+                options: ["Speed", "Planning", "Tools", "Budget"],
+                correct_answer: 1
+              },
+              {
+                question: "How can you accelerate your learning process?",
+                options: ["Working alone", "Using expensive tools", "Collaboration and sharing", "Avoiding mistakes"],
+                correct_answer: 2
+              },
+              {
+                question: "What leads to mastery according to the article?",
+                options: ["Natural talent", "Expensive courses", "Regular practice and iteration", "Perfect planning"],
+                correct_answer: 2
+              }
+            ]},
+            tags: data.tags == "" ? [] : data.tags.split(",").map((tag: string) => tag.trim())
+          });
           
           // Add XP for reading an article
           if (data) {
@@ -65,41 +86,9 @@ const loadArticle = async () => {
           setLoading(false);
         }
       };
-
-
     loadArticle();
   }, [id, navigate]);
 
-  const loadEnhancedContent = async () => {
-    if (!article || enhancedContent) return;
-    
-    setLoadingEnhanced(true);
-    
-    // Simulate AI processing
-    setTimeout(() => {
-      setEnhancedContent({
-        ...article.enhanced_content,
-        quiz: [
-          {
-            question: "What is the most important factor for successful implementation?",
-            options: ["Speed", "Planning", "Tools", "Budget"],
-            correct_answer: 1
-          },
-          {
-            question: "How can you accelerate your learning process?",
-            options: ["Working alone", "Using expensive tools", "Collaboration and sharing", "Avoiding mistakes"],
-            correct_answer: 2
-          },
-          {
-            question: "What leads to mastery according to the article?",
-            options: ["Natural talent", "Expensive courses", "Regular practice and iteration", "Perfect planning"],
-            correct_answer: 2
-          }
-        ]
-      });
-      setLoadingEnhanced(false);
-    }, 1000);
-  };
 
   const handleLike = async () => {
     if (!article) return;
@@ -128,7 +117,7 @@ const loadArticle = async () => {
 
   const submitQuiz = () => {
     setShowQuizResults(true);
-    const correctAnswers = enhancedContent?.quiz.filter((question, index) => 
+    const correctAnswers = article.enhanced_content?.quiz.filter((question, index) => 
       selectedQuizAnswers[index] === question.correct_answer
     ).length || 0;
     
@@ -145,7 +134,7 @@ const openExternalResource = () => {
   };
 
     const handleTextToSpeech = () => {
-    if (!enhancedContent) return;
+    if (!article.enhanced_content) return;
 
     if (isPlaying && !isPaused) {
       pause();
@@ -154,9 +143,9 @@ const openExternalResource = () => {
     } else {
       // Create a comprehensive text to read
       const textToRead = `
-        ${enhancedContent.adapted_text}
-        Key takeaways: ${enhancedContent.key_takeaways.join('. ')}.
-        Sentiment analysis: ${enhancedContent.sentiment_analysis}
+        ${marked(article.enhanced_content.adapted_text)}
+        Key takeaways: ${article.enhanced_content.key_takeaways.join('. ')}.
+        Sentiment analysis: ${article.enhanced_content.sentiment_analysis}
       `;
       speak(textToRead);
     }
@@ -274,13 +263,11 @@ const openExternalResource = () => {
         </div>
 
         {/* Content Tabs */}
-        <Tabs defaultValue="original" className="mb-12">
+        <Tabs defaultValue="enhanced" className="mb-12">
           <TabsList className="grid w-full grid-cols-2">
-    
             <TabsTrigger 
               value="enhanced" 
               className="flex items-center gap-2"
-              onClick={loadEnhancedContent}
             >
               <Brain className="h-4 w-4" />
               AI Enhanced
@@ -301,15 +288,7 @@ const openExternalResource = () => {
           </TabsContent>
           
           <TabsContent value="enhanced" className="mt-6 space-y-6">
-            {loadingEnhanced ? (
-              <Card className="p-8">
-                <div className="text-center">
-                  <Brain className="h-8 w-8 text-purple-500 mx-auto mb-4 animate-pulse" />
-                  <p className="text-lg font-medium">AI is enhancing your content...</p>
-                  <p className="text-gray-600">This may take a few moments</p>
-                </div>
-              </Card>
-            ) : enhancedContent ? (
+            {(
               <>
               {/* Text-to-Speech Controls */}
                 {(
@@ -359,7 +338,7 @@ const openExternalResource = () => {
                 <Card className="p-8">
                   <div 
                     className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: enhancedContent.adapted_text }}
+                    dangerouslySetInnerHTML={{ __html: article.enhanced_content.adapted_text }}
                   />
                 </Card>
 
@@ -373,7 +352,7 @@ const openExternalResource = () => {
                   </CardHeader>
                   <CardContent className="p-0">
                     <ul className="space-y-2">
-                      {enhancedContent.key_takeaways.map((takeaway, index) => (
+                      {article.enhanced_content.key_takeaways.map((takeaway, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
                           <span>{takeaway}</span>
@@ -392,7 +371,7 @@ const openExternalResource = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <p className="text-gray-700">{enhancedContent.sentiment_analysis}</p>
+                    <p className="text-gray-700">{article.enhanced_content.sentiment_analysis}</p>
                   </CardContent>
                 </Card>
 
@@ -405,7 +384,7 @@ const openExternalResource = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 space-y-6">
-                    {enhancedContent.quiz.map((question, questionIndex) => (
+                    {article.enhanced_content.quiz.map((question, questionIndex) => (
                       <div key={questionIndex} className="space-y-3">
                         <p className="font-medium">
                           {questionIndex + 1}. {question.question}
@@ -443,7 +422,7 @@ const openExternalResource = () => {
                       <Button 
                         onClick={submitQuiz}
                         className="w-full"
-                        disabled={Object.keys(selectedQuizAnswers).length !== enhancedContent.quiz.length}
+                        disabled={Object.keys(selectedQuizAnswers).length !== article.enhanced_content.quiz.length}
                       >
                         Submit Quiz
                       </Button>
@@ -452,7 +431,7 @@ const openExternalResource = () => {
                     {showQuizResults && (
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <p className="text-green-800 font-medium">
-                          Quiz completed! You got {enhancedContent.quiz.filter((q, i) => selectedQuizAnswers[i] === q.correct_answer).length} out of {enhancedContent.quiz.length} correct.
+                          Quiz completed! You got {article.enhanced_content.quiz.filter((q, i) => selectedQuizAnswers[i] === q.correct_answer).length} out of {article.enhanced_content.quiz.length} correct.
                         </p>
                       </div>
                     )}
@@ -491,18 +470,6 @@ const openExternalResource = () => {
                     </div>
                   )}
               </>
-            ) : (
-              <Card className="p-8 text-center">
-                <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">AI Enhancement Available</h3>
-                <p className="text-gray-600 mb-4">
-                  Get personalized insights, key takeaways, and interactive quizzes powered by AI.
-                </p>
-                <Button onClick={loadEnhancedContent} className="bg-purple-600 hover:bg-purple-700">
-                  <Brain className="h-4 w-4 mr-2" />
-                  Enhance with AI
-                </Button>
-              </Card>
             )}
           </TabsContent>
         </Tabs>

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Star, BookOpen, Flame, Medal, Crown, Music, Play, Pause, Coins } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Trophy, Star, BookOpen, Flame, Medal, Crown, Music, Play, Pause, Coins, Volume2 } from "lucide-react";
 import { LeaderboardEntry } from "@/services/ServiceInterface";
 import axios from "axios";
 
@@ -10,14 +11,16 @@ const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('all');
-  const [playingMusic, setPlayingMusic] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
+  const progressUpdateInterval = useRef<NodeJS.Timeout | null>(null);
 
 useEffect(() => {
   const loadLeaderboard = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/leaderboard`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/leaderboard`, {
         params: { timeframe } // if your API supports filtering by timeframe via query params
       });
       setLeaderboard(response.data);
@@ -27,49 +30,78 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
   loadLeaderboard();
 }, [timeframe]);
 
-  const celebrationSongs = {
-    1: "/resources/prize1.mp3", 
-    2: "/resources/prize2.mp3", 
-    3: "/resources/prize2.mp3" 
+
+  useEffect(() => {
+    // Initialize audio
+    audioRef.current = new Audio('resources/prize.mp3');
+    
+    const audio = audioRef.current;
+    
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+    
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      if (progressUpdateInterval.current) {
+        clearInterval(progressUpdateInterval.current);
+      }
+    };
+    
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+
+    return () => {
+      if (progressUpdateInterval.current) {
+        clearInterval(progressUpdateInterval.current);
+      }
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.pause();
+    };
+  }, []);
+
+  const togglePlayPause = async () => {
+    if (!audioRef.current) return;
+
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        if (progressUpdateInterval.current) {
+          clearInterval(progressUpdateInterval.current);
+        }
+      } else {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
   };
 
-  const playMusic = (position: number) => {
-    const selectedSong = celebrationSongs[position];
+  const handleSeek = (value: number[]) => {
+    if (!audioRef.current) return;
+    
+    const newTime = value[0];
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
 
-    if (!selectedSong) return;
-
-    // Se clicchi sullo stesso tasto che sta già suonando, stoppa
-    if (playingMusic === position) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      setPlayingMusic(null);
-    } else {
-      // Ferma qualsiasi altra musica
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-
-      const audio = new Audio(selectedSong);
-      audio.volume = 0.3;
-
-      audio.play().then(() => {
-        setPlayingMusic(position);
-        audioRef.current = audio;
-
-        // Quando finisce, resetta lo stato
-        audio.onended = () => {
-          setPlayingMusic(null);
-        };
-      }).catch(error => {
-        console.error("Errore durante la riproduzione audio:", error);
-      });
-    }
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const getPrizeCredits = (position: number) => {
@@ -114,7 +146,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20 pb-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -144,7 +176,7 @@ useEffect(() => {
         </div>
 
         {/* Top 3 Podium */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           {/* 2nd Place */}
           {leaderboard[1] && (
             <Card className="p-6 text-center transform translate-y-4">
@@ -168,20 +200,7 @@ useEffect(() => {
               </div>
               
               {/* Prize Section */}
-              <div className="border-t pt-3 space-y-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => playMusic(2)}
-                  className="w-full flex items-center gap-2"
-                >
-                  {playingMusic === 2 ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                  {playingMusic === 2 ? 'Playing...' : 'Play Song'}
-                </Button>
+              <div className="border-t pt-3">
                 <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-medium">
                   <Coins className="h-4 w-4" />
                   {getPrizeCredits(2)} Credits
@@ -215,19 +234,7 @@ useEffect(() => {
               </div>
               
               {/* Prize Section */}
-              <div className="border-t pt-3 space-y-2">
-                <Button
-                  size="sm"
-                  onClick={() => playMusic(1)}
-                  className="w-full flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
-                >
-                  {playingMusic === 1 ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                  {playingMusic === 1 ? 'Playing Victory!' : 'Play Song'}
-                </Button>
+              <div className="border-t pt-3">
                 <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-bold">
                   <Coins className="h-4 w-4" />
                   {getPrizeCredits(1)} Credits
@@ -259,20 +266,7 @@ useEffect(() => {
               </div>
               
               {/* Prize Section */}
-              <div className="border-t pt-3 space-y-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => playMusic(3)}
-                  className="w-full flex items-center gap-2"
-                >
-                  {playingMusic === 3 ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                  {playingMusic === 3 ? 'Playing...' : 'Play Song'}
-                </Button>
+              <div className="border-t pt-3">
                 <div className="flex items-center justify-center gap-1 text-sm text-yellow-600 font-medium">
                   <Coins className="h-4 w-4" />
                   {getPrizeCredits(3)} Credits
@@ -281,6 +275,62 @@ useEffect(() => {
             </Card>
           )}
         </div>
+
+        {/* Real Music Player Section */}
+        <Card className="p-6 mb-8 bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 border-yellow-200">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-3 flex items-center justify-center gap-2">
+              <Trophy className="h-6 w-6 text-yellow-600" />
+              Celebrate Our Top 3 Champions!
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Play the victory anthem to celebrate all our amazing top performers
+            </p>
+            
+            <div className="flex flex-col items-center gap-4">
+              <Button
+                onClick={togglePlayPause}
+                className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 hover:from-yellow-500 hover:via-orange-600 hover:to-red-600 text-white px-8 py-3 text-lg font-semibold"
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="h-5 w-5 mr-2" />
+                    Playing the Victory Song
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-5 w-5 mr-2" />
+                    Play the Victory Song
+                  </>
+                )}
+              </Button>
+
+              {duration > 0 && (
+                <div className="w-full max-w-md">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                    <Music className="h-4 w-4" />
+                    <span>Champions Victory Theme</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 tabular-nums">
+                      {formatTime(currentTime)}
+                    </span>
+                    <Slider
+                      value={[currentTime]}
+                      onValueChange={handleSeek}
+                      max={duration}
+                      step={0.1}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-gray-500 tabular-nums">
+                      {formatTime(duration)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
 
         {/* Full Leaderboard */}
         <Card className="p-6">
@@ -343,22 +393,6 @@ useEffect(() => {
                       </div>
                     )}
                   </div>
-
-                  {/* Music Button for Top 3 */}
-                  {position <= 3 && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => playMusic(position)}
-                      className="ml-2"
-                    >
-                      {playingMusic === position ? (
-                        <Pause className="h-4 w-4" />
-                      ) : (
-                        <Play className="h-4 w-4" />
-                      )}
-                    </Button>
-                  )}
                 </div>
               );
             })}

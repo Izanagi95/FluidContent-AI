@@ -1,6 +1,6 @@
 
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr
 from datetime import date
 
 # Pydantic Schemas
@@ -32,15 +32,10 @@ class UserAchievementOut(UserAchievementBase):
     class Config:
         orm_mode = True
 
-
-RoleType = constr(pattern=r'^(consumer|maker|provider)$')
-
 class UserBase(BaseModel):
-    
-    id: str
     name: str
     email: EmailStr
-    role: RoleType
+    password: str
     avatar: Optional[str] = None
     level: int
     xp: int
@@ -52,10 +47,9 @@ class UserCreate(UserBase):
     pass
 
 class UserUpdate(BaseModel):
-    id: str
     name: Optional[str]
     email: Optional[EmailStr]
-    role: Optional[RoleType]
+    password: Optional[str]
     avatar: Optional[str]
 
 
@@ -64,20 +58,6 @@ class UserOut(UserBase):
 
     class Config:
         orm_mode = True
-
-
-class AuthorBase(BaseModel):
-    id: str
-    name: str
-    avatar: Optional[str]
-
-class AuthorCreate(AuthorBase):
-    pass
-
-class AuthorOut(AuthorBase):
-    class Config:
-        orm_mode = True
-
 
 class TagBase(BaseModel):
     id: str
@@ -92,28 +72,37 @@ class TagOut(TagBase):
 
 
 class ArticleBase(BaseModel):
-    id: str
+    # id: str
     title: str
     excerpt: str
     content: str
     authorId: Optional[str]
+    status: str  # e.g., 'draft', 'published'
     publishDate: date
     readTime: int
     likes: int
     views: int
     isLiked: bool
     thumbnail: Optional[str]
+    tags: str
 
 class ArticleCreate(ArticleBase):
-    tags: List[str] = []
+    pass
+
+class ArticleGet(ArticleBase):
+    id: str
 
 class ArticleOut(ArticleBase):
-    author: Optional[AuthorOut]
-    tags: List[TagOut] = []
-
+    id: str
+    author: Optional[UserOut]
+    
     class Config:
         orm_mode = True
 
+
+class ArticleOutEnhanced(ArticleBase):
+    author: Optional[UserOut]
+    enhanced_content: object
 
 class LeaderboardBase(BaseModel):
     id: str
@@ -138,6 +127,7 @@ class ConfigurationBase(BaseModel):
     length_preference: str | None = None
     format_preference: str | None = None
     age_preference: int | None = None
+    interests: str | None = None  # Assuming interests is a comma-separated string
 
 class ConfigurationCreate(ConfigurationBase):
     user_id: str  # link to user on creation

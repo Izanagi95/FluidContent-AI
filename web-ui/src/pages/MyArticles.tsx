@@ -9,6 +9,7 @@ import {
   FileText, Calendar, TrendingUp 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface Article {
   id: string;
@@ -28,6 +29,33 @@ const MyArticles = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userData = localStorage.getItem("user");
+  const id = userData ? JSON.parse(userData).id : null;
+
+  useEffect(() => {
+  const loadArticles = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/articles/user/` + id);
+      console.debug('Response data:', response.data);
+      if (response.status !== 200) {
+        throw new Error('Failed to load user');
+      }
+      const articleData = response.data;
+      const parsedArticles = articleData.map(article => ({
+        ...article,
+        tags: (article.tags ?? "").split(",").map(tag => tag.trim()).filter(Boolean)
+      }));
+
+      setArticles(parsedArticles);
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadArticles();
+}, []);
+
   useEffect(() => {
     // Check authentication and role
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -43,45 +71,6 @@ const MyArticles = () => {
       return;
     }
 
-    // Mock API call to get user's articles
-    setTimeout(() => {
-      setArticles([
-        {
-          id: '1',
-          title: 'Complete Guide to Mediterranean Diet',
-          excerpt: 'A comprehensive guide to healthy eating with Mediterranean principles...',
-          status: 'published',
-          publishDate: '2024-01-25',
-          views: 1520,
-          likes: 234,
-          readTime: 8,
-          tags: ['Health', 'Nutrition', 'Lifestyle']
-        },
-        {
-          id: '2',
-          title: 'Urban Photography Tips for Beginners',
-          excerpt: 'Learn how to capture stunning urban scenes with basic equipment...',
-          status: 'draft',
-          publishDate: '',
-          views: 0,
-          likes: 0,
-          readTime: 12,
-          tags: ['Photography', 'Art', 'Tutorial']
-        },
-        {
-          id: '3',
-          title: 'The Future of Remote Work',
-          excerpt: 'Exploring trends and tools that are shaping the future of work...',
-          status: 'published',
-          publishDate: '2024-01-20',
-          views: 890,
-          likes: 156,
-          readTime: 15,
-          tags: ['Business', 'Technology', 'Future']
-        }
-      ]);
-      setLoading(false);
-    }, 500);
   }, [navigate]);
 
   const filteredArticles = articles.filter(article =>
@@ -90,7 +79,6 @@ const MyArticles = () => {
   );
 
   const publishedArticles = articles.filter(article => article.status === 'published');
-  const draftArticles = articles.filter(article => article.status === 'draft');
   const totalViews = publishedArticles.reduce((sum, article) => sum + article.views, 0);
   const totalLikes = publishedArticles.reduce((sum, article) => sum + article.likes, 0);
 
