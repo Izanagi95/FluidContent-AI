@@ -54,7 +54,7 @@ FluidContent AI processes original content alongside user profile data. An advan
 
 The output is a structured JSON for seamless integration into any digital platform, providing a richer, more engaging experience for the user and enhanced value for publishers and brands.
 
-![FluidContent-AI architecture](img\fluidcontent-ai-architecture.png "FluidContent AI architecture")
+![FluidContent-AI architecture](img/fluidcontent-ai-architecture.png "FluidContent AI architecture")
 
 ## 🚀 Running the Application
 
@@ -150,7 +150,7 @@ A small corner for thanks and the inspirations that contributed to the realizati
 *   **Inspirational Quote:**
     *   Bruce Lee, for his philosophy *"Be water, my friend."* which inspired the name and adaptive approach of our project.
 
-    [![Bruce Lee. Be water, my friend. Thumbnail.](img\brucelee.jpg)](https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k "Bruce Lee. Be water, my friend.")
+    [![Bruce Lee. Be water, my friend. Thumbnail.](img/brucelee.jpg)](https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k "Bruce Lee. Be water, my friend.")
 
 *   **Hackathon Organizers & Mentors:**
     *   A special thank you to **CodeMotion** for organizing this stimulating hackathon, and to **PLAI** for promoting this event.
