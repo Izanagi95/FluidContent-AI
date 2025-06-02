@@ -3,6 +3,7 @@
 /uploads/
 /backend/uploads/
 /backend/generated_html_files/
+/backend/generated_audio/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
