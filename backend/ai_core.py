@@ -84,19 +84,26 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
     Ad esempio, potresti iniziare il testo con un saluto personalizzato se il tono lo permette e il nome è fornito.
     Per un utente più giovane, usa un linguaggio più semplice e diretto. Per un utente adulto con preferenze formali, mantieni un tono professionale.
     2. ESTRARRE PUNTI CHIAVE (Key Takeaways): Identifica e restituisci da 3 a 5 punti chiave o "takeaways" principali dal contenuto adattato, in formato lista.
-    3. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno.
-    4. ANALISI DEL SENTIMENT (Opzionale): Fornisci una breve analisi del sentiment del testo adattato (es. Positivo, Negativo, Neutro, Informativo).
+    3. GENERARE UN QUIZ: Crea un quiz di 2-3 domande basate *esclusivamente* sul contenuto del "adapted_text". Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0).
+    4. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno.
+    5. ANALISI DEL SENTIMENT (Opzionale): Fornisci una breve analisi del sentiment del testo adattato (es. Positivo, Negativo, Neutro, Informativo).
 
     FORMATO DELLA RISPOSTA RICHIESTA:
     Restituisci un oggetto JSON strutturato con le seguenti chiavi:
     - "adapted_text": (stringa) Il testo completamente adattato.
-    - "key_takeaways": (lista di stringhe, opzionale) I punti chiave estratti.
+    - "key_takeaways": (lista di stringhe) I punti chiave estratti.
+    - "generated_quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
+        - "question": (stringa) Il testo della domanda.
+        - "options": (lista di stringhe) Le opzioni di risposta.
+        - "correct_answer": (intero) L'indice (0-based) dell'opzione corretta nella lista "options".
     - "suggested_title": (stringa, opzionale) Il nuovo titolo suggerito.
     - "sentiment_analysis": (stringa, opzionale) L'analisi del sentiment.
 
     REGOLE IMPORTANTI:
     - Mantieni l'accuratezza fattuale del contenuto originale.
     - Non inventare informazioni.
+    - Le domande del quiz devono basarsi *esclusivamente* sul contenuto dell'"adapted_text" e non su conoscenze esterne.
+    - Le opzioni di risposta per il quiz devono essere plausibili ma solo una deve essere chiaramente corretta secondo il testo adattato.
     - Sii creativo ma pertinente.
     - Se una preferenza utente è in conflitto con la natura del contenuto, usa il tuo miglior giudizio per trovare un equilibrio o segnalalo.
     - L'output "adapted_text" DEVE essere il testo completo e pronto per essere mostrato all'utente.
