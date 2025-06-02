@@ -80,9 +80,11 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
     ---
 
     IL TUO COMPITO È:
-    1. ADATTARE IL TESTO: Modifica il tono, lo stile, la complessità del linguaggio e, se necessario, la lunghezza del testo originale per allinearlo al meglio con il nome (se rilevante per un tocco personale), l'età, gli interessi e le preferenze dell'utente.
-    Ad esempio, potresti iniziare il testo con un saluto personalizzato se il tono lo permette e il nome è fornito.
-    Per un utente più giovane, usa un linguaggio più semplice e diretto. Per un utente adulto con preferenze formali, mantieni un tono professionale.
+    1. ADATTARE IL TESTO IN MODO FLUIDO:
+        a. STILE E TONO: Modifica il tono, lo stile e la complessità del linguaggio del testo originale per rispecchiare l'età e le preferenze dell'utente (es. linguaggio più semplice e diretto per utenti giovani; tono più formale o informale a seconda delle preferenze).
+        b. INTEGRAZIONE DEGLI INTERESSI: Se pertinente e naturale, integra sottilmente riferimenti o analogie legate agli {user_interests} per rendere il testo più risonante e coinvolgente per {user_name}. L'obiettivo è una personalizzazione che arricchisca il contenuto originale, mantenendone la scorrevolezza e l'integrità.
+        c. PERSONALIZZAZIONE CON IL NOME: Utilizza il nome {user_name} in modo organico all'interno del testo, solo se contribuisce a creare un'esperienza più personale e interessante, senza risultare forzato o interrompere il flusso narrativo. Evita saluti formali all'inizio, a meno che non sia eccezionalmente appropriato per il tono generale richiesto.
+        d. LUNGHEZZA: Se necessario, adatta la lunghezza del testo per mantenere l'engagement, considerando le preferenze dell'utente.
     2. ESTRARRE PUNTI CHIAVE (Key Takeaways): Identifica e restituisci da 3 a 5 punti chiave o "takeaways" principali dal contenuto adattato, in formato lista.
     3. GENERARE UN QUIZ: Crea un quiz di 2-3 domande basate *esclusivamente* sul contenuto del "adapted_text". Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0).
     4. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno.
