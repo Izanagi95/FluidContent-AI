@@ -1,104 +1,93 @@
 import { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 
-
 export const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // const speak = useCallback((text: string) => {
-  //   if (!('speechSynthesis' in window)) {
-  //     console.error('Speech synthesis not supported');
-  //     return;
-  //   }
+  const speak = useCallback(async (text: string) => {
+    try {
+      const payload = {
+        user: {
+          user_id: "user001",
+          name: "Alice",
+          age: 8,
+          preferred_voice_gender: "female",
+          preferred_voice_style: "energetic",
+          interests: ["cartoons", "fairy tales"]
+        },
+        content: {
+          title: "",
+          original_text: text
+        }
+      };
 
-  //   // Stop any current speech
-  //   window.speechSynthesis.cancel();
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/text2speech/`, payload, {
+        responseType: 'blob'
+      });
 
-  //   // Clean HTML tags from text
-  //   const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(audioBlob);
 
-  //   const utterance = new SpeechSynthesisUtterance(cleanText);
-  //   utteranceRef.current = utterance;
-
-  //   utterance.rate = 0.9;
-  //   utterance.pitch = 1;
-  //   utterance.volume = 1;
-
-  //   utterance.onstart = () => {
-  //     setIsPlaying(true);
-  //     setIsPaused(false);
-  //   };
-
-  //   utterance.onend = () => {
-  //     setIsPlaying(false);
-  //     setIsPaused(false);
-  //   };
-
-  //   utterance.onerror = () => {
-  //     setIsPlaying(false);
-  //     setIsPaused(false);
-  //   };
-
-  //   window.speechSynthesis.speak(utterance);
-  // }, []);
-
-
-
-  const speak = async (text: string) => {
-  try {
-    const payload = {
-      user: {
-        user_id: "user001",
-        name: "Alice",
-        age: 8,
-        preferred_voice_gender: "female",
-        preferred_voice_style: "energetic",
-        interests: ["cartoons", "fairy tales"]
-      },
-      content: {
-        title: "",
-        original_text: text
+      if (audioRef.current) {
+        audioRef.current.pause();
+        URL.revokeObjectURL(audioRef.current.src);  // libera vecchio URL
       }
-    };
 
-    // Chiamata POST a FastAPI
-    const response = await axios.post(`${ import.meta.env.VITE_API_URL }/text2speech/`, payload, {
-      responseType: 'blob'  // IMPORTANTISSIMO per ricevere dati audio binari
-    });
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
 
-    // Creiamo un URL per l’audio ricevuto
-    const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
-    const audioUrl = URL.createObjectURL(audioBlob);
+      // Aggiorna stato a play
+      audio.onplay = () => {
+        setIsPlaying(true);
+        setIsPaused(false);
+      };
 
-    // Riproduciamo l’audio
-    const audio = new Audio(audioUrl);
-    audio.play();
+      // Aggiorna stato a pausa
+      audio.onpause = () => {
+        setIsPaused(true);
+      };
 
-  } catch (error) {
-    console.error("Errore nella sintesi vocale:", error);
-  }
-};
+      // Aggiorna stato a stop / fine
+      audio.onended = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
 
-  const pause = useCallback(() => {
-    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-      window.speechSynthesis.pause();
-      setIsPaused(true);
-    }
-  }, []);
+      audio.onerror = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
 
-  const resume = useCallback(() => {
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
+      await audio.play();
+
+    } catch (error) {
+      console.error("Errore nella sintesi vocale:", error);
+      setIsPlaying(false);
       setIsPaused(false);
     }
   }, []);
 
+  const pause = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+    }
+  }, []);
+
+  const resume = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused) {
+      audioRef.current.play();
+    }
+  }, []);
+
   const stop = useCallback(() => {
-    window.speechSynthesis.cancel();
-    setIsPlaying(false);
-    setIsPaused(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setIsPaused(false);
+    }
   }, []);
 
   return {
@@ -108,6 +97,6 @@ export const useTextToSpeech = () => {
     stop,
     isPlaying,
     isPaused,
-    isSupported: 'speechSynthesis' in window
+    isSupported: true  // Non usi più speechSynthesis, quindi lo dichiari supportato
   };
 };
