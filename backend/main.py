@@ -11,7 +11,7 @@ from db.schemas import (
     UserCreate, UserUpdate, UserOut, 
     AchievementOut, UserAchievementOut, UserAchievementCreate, 
     ConfigurationOut, ConfigurationCreate,
-    ConfigurationBase, ArticleOutEnhanced, ArticleGet,
+    ConfigurationBase, ArticleOutEnhanced,
     AchievementCreate, ArticleCreate, ArticleOut, 
     LeaderboardOut, LeaderboardCreate)
 from db.database import get_db, engine, Base
@@ -27,6 +27,7 @@ import logging
 import asyncio
 from text_to_speech import generate_audio_for_user
 from fastapi.responses import StreamingResponse, FileResponse
+from concurrent.futures import ThreadPoolExecutor
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -305,6 +306,9 @@ def delete_userachievement(user_id: str, achievement_id: str, db: Session = Depe
     return {"detail": "UserAchievement deleted"}
 
 # CRUD Articles
+# Crea un ThreadPoolExecutor globale
+executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="html_processor")
+
 @app.post("/articles/", response_model=ArticleOut)
 async def create_article(article: ArticleCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 
@@ -350,51 +354,104 @@ async def create_article(article: ArticleCreate, background_tasks: BackgroundTas
             original_text=article.content
         )
     )
-    # background_tasks.add_task(
-    #     process_content_to_html_sync,
-    #     process_content_to_html_request,
-    #     generated_filename
-    # )
-    await process_content_to_html(process_content_to_html_request, generated_filename)
+    
+    # Fire-and-forget con gestione errori - usando ThreadPoolExecutor
+    executor.submit(
+        run_safe_process_content_to_html,
+        process_content_to_html_request,
+        generated_filename
+    )
     return new_article
 
-def process_content_to_html_sync(request: ProcessRequest, generated_filename: str):
-    return asyncio.run(process_content_to_html(request, generated_filename))
+
+def run_safe_process_content_to_html(request: ProcessRequest, generated_filename: str):
+    """Wrapper sincrono che esegue il task asincrono in un thread dedicato"""
+    try:
+        logger.info(f"Avvio elaborazione HTML in thread separato per file: {generated_filename}")
+        
+        # Crea un nuovo event loop per questo thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            # Esegui il task asincrono
+            result = loop.run_until_complete(safe_process_content_to_html(request, generated_filename))
+            logger.info(f"Thread completato con successo per file: {generated_filename}")
+            return result
+        except Exception as e:
+            logger.error(f"Errore durante l'esecuzione asincrona per file {generated_filename}: {str(e)}", exc_info=True)
+            raise
+        finally:
+            # Pulisci il loop
+            try:
+                # Cancella tutti i task pending
+                pending = asyncio.all_tasks(loop)
+                for task in pending:
+                    task.cancel()
+                
+                if pending:
+                    loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            except Exception as cleanup_error:
+                logger.warning(f"Errore durante cleanup del loop: {cleanup_error}")
+            finally:
+                loop.close()
+                
+    except Exception as e:
+        logger.error(f"Errore nel wrapper sincrono per file {generated_filename}: {str(e)}", exc_info=True)
+
+
+async def safe_process_content_to_html(request: ProcessRequest, generated_filename: str):
+    """Wrapper sicuro per process_content_to_html con gestione errori completa"""
+    try:
+        logger.info(f"Iniziando elaborazione HTML per user_id: {request.profile.user_id}, file: {generated_filename}")
+        result = await process_content_to_html(request, generated_filename)
+        logger.info(f"Elaborazione HTML completata con successo per file: {generated_filename}")
+        return result
+    except Exception as e:
+        logger.error(f"Errore durante l'elaborazione HTML per file {generated_filename}: {str(e)}", exc_info=True)
+        # Opzionalmente potresti anche notificare l'utente tramite email/websocket/database
+        # await notify_user_processing_failed(request.profile.user_id, generated_filename, str(e))
 
 
 async def process_content_to_html(request: ProcessRequest, generated_filename: str):
     logger.info(f"Richiesta ricevuta per user_id: {request.profile.user_id}, titolo: {request.content.title}")
 
-    generated_html_content = await generate_html_content(request)
-    if not generated_html_content:
-        raise HTTPException(status_code=500, detail="Impossibile generare il contenuto HTML.")
-
-    logger.info(f"HTML generato con successo per user_id: {request.profile.user_id}")
-
     try:
-        os.makedirs(OUTPUT_HTML_DIR, exist_ok=True) 
-        logger.info(f"Directory di output '{OUTPUT_HTML_DIR}' assicurata.")
-    except OSError as e:
-        logger.info(f"Errore durante la creazione della directory '{OUTPUT_HTML_DIR}': {e}")
-        raise HTTPException(status_code=500, detail=f"Impossibile creare la directory di output: {e}")
+        generated_html_content = await generate_html_content(request)
+        if not generated_html_content:
+            raise ValueError("generate_html_content ha restituito contenuto vuoto")
 
-    file_path = os.path.join(OUTPUT_HTML_DIR, generated_filename)
+        logger.info(f"HTML generato con successo per user_id: {request.profile.user_id}")
 
-    try:
-        async with aiofiles.open(file_path, mode="w", encoding="utf-8") as f:
-            await f.write(generated_html_content)
-        logger.info(f"File HTML salvato con successo in: {file_path}")
-    except Exception as e:
-        logger.info(f"Errore durante il salvataggio del file HTML in '{file_path}': {e}")
+        # Creazione directory
+        try:
+            os.makedirs(OUTPUT_HTML_DIR, exist_ok=True) 
+            logger.info(f"Directory di output '{OUTPUT_HTML_DIR}' assicurata.")
+        except OSError as e:
+            logger.error(f"Errore durante la creazione della directory '{OUTPUT_HTML_DIR}': {e}")
+            raise ValueError(f"Impossibile creare la directory di output: {e}")
+
+        # Salvataggio file
+        file_path = os.path.join(OUTPUT_HTML_DIR, generated_filename)
+        try:
+            async with aiofiles.open(file_path, mode="w", encoding="utf-8") as f:
+                await f.write(generated_html_content)
+            logger.info(f"File HTML salvato con successo in: {file_path}")
+        except Exception as e:
+            logger.error(f"Errore durante il salvataggio del file HTML in '{file_path}': {e}")
+            raise ValueError(f"Impossibile salvare il file HTML: {e}")
+        
+        return HTMLOutput(
+            user_id=request.profile.user_id,
+            content_title=request.content.title,
+            filename=generated_filename,
+            generated_html=generated_html_content
+        )
     
-    return HTMLOutput(
-        user_id=request.profile.user_id,
-        content_title=request.content.title,
-        filename=generated_filename,
-        generated_html=generated_html_content
-    )
-
-
+    except Exception as e:
+        # Re-raise per permettere al wrapper safe_process_content_to_html di gestire
+        logger.error(f"Errore in process_content_to_html: {str(e)}")
+        raise
 @app.get("/articles/", response_model=List[ArticleOut])
 def read_articles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(Article).offset(skip).limit(limit).all()
