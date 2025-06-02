@@ -86,7 +86,7 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
         c. PERSONALIZZAZIONE CON IL NOME: Utilizza il nome {user_name} in modo organico all'interno del testo, solo se contribuisce a creare un'esperienza più personale e interessante, senza risultare forzato o interrompere il flusso narrativo. Evita saluti formali all'inizio, a meno che non sia eccezionalmente appropriato per il tono generale richiesto.
         d. LUNGHEZZA: Se necessario, adatta la lunghezza del testo per mantenere l'engagement, considerando le preferenze dell'utente.
     2. ESTRARRE PUNTI CHIAVE (Key Takeaways): Identifica e restituisci da 3 a 5 punti chiave o "takeaways" principali dal contenuto adattato, in formato lista.
-    3. GENERARE UN QUIZ: Crea un quiz di 2-3 domande basate *esclusivamente* sul contenuto del "adapted_text". Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0).
+    3. GENERARE UN QUIZ: Crea un quiz di almeno 3 domande basate *esclusivamente* sul contenuto del "adapted_text". Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0).
     4. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno.
     5. ANALISI DEL SENTIMENT (Opzionale): Fornisci una breve analisi del sentiment del testo adattato (es. Positivo, Negativo, Neutro, Informativo).
 
@@ -94,7 +94,7 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
     Restituisci un oggetto JSON strutturato con le seguenti chiavi:
     - "adapted_text": (stringa) Il testo completamente adattato.
     - "key_takeaways": (lista di stringhe) I punti chiave estratti.
-    - "generated_quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
+    - "quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
         - "question": (stringa) Il testo della domanda.
         - "options": (lista di stringhe) Le opzioni di risposta.
         - "correct_answer": (intero) L'indice (0-based) dell'opzione corretta nella lista "options".

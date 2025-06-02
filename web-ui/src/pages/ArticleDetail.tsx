@@ -53,23 +53,25 @@ const loadArticle = async () => {
         try {
           const response = await axios.get(`${import.meta.env.VITE_API_URL}/enhanced-articles/${id}/user/${userId}`);
           const data = response.data;
-          setArticle({...data, enhanced_content: {...data.enhanced_content, quiz: [
-              {
-                question: "What is the most important factor for successful implementation?",
-                options: ["Speed", "Planning", "Tools", "Budget"],
-                correct_answer: 1
-              },
-              {
-                question: "How can you accelerate your learning process?",
-                options: ["Working alone", "Using expensive tools", "Collaboration and sharing", "Avoiding mistakes"],
-                correct_answer: 2
-              },
-              {
-                question: "What leads to mastery according to the article?",
-                options: ["Natural talent", "Expensive courses", "Regular practice and iteration", "Perfect planning"],
-                correct_answer: 2
-              }
-            ]},
+          setArticle({...data, enhanced_content: {...data.enhanced_content//, 
+            // quiz: [
+            //   {
+            //     question: "What is the most important factor for successful implementation?",
+            //     options: ["Speed", "Planning", "Tools", "Budget"],
+            //     correct_answer: 1
+            //   },
+            //   {
+            //     question: "How can you accelerate your learning process?",
+            //     options: ["Working alone", "Using expensive tools", "Collaboration and sharing", "Avoiding mistakes"],
+            //     correct_answer: 2
+            //   },
+            //   {
+            //     question: "What leads to mastery according to the article?",
+            //     options: ["Natural talent", "Expensive courses", "Regular practice and iteration", "Perfect planning"],
+            //     correct_answer: 2
+            //   }
+            // ]
+          },
             tags: data.tags == "" ? [] : data.tags.split(",").map((tag: string) => tag.trim())
           });
           

@@ -26,12 +26,17 @@ class ProcessRequest(BaseModel):
     content: ContentInput
 
 # OUTPUT
+class Quiz(BaseModel):
+    question: str
+    options: List[str]
+    correct_answer: int
+
 class ProcessedContent(BaseModel):
     adapted_text: str = Field(..., description="Il testo completamente adattato.")
-    key_takeaways: Optional[List[str]] = Field(default=None, description="I punti chiave estratti.")
+    key_takeaways: Optional[List[str]] = Field(default=[], description="I punti chiave estratti.")
     suggested_title: Optional[str] = Field(default=None, description="Il nuovo titolo suggerito.")
     sentiment_analysis: Optional[str] = Field(default=None, description="L'analisi del sentiment.")
-    generated_quiz: Optional[str] = Field(default=None, description="Il quiz generato basato sul contenuto.")
+    quiz: Optional[List[Quiz]] = Field(default=[], description="Il quiz generato basato sul contenuto.")
 
 class ErrorResponse(BaseModel):
     detail: str

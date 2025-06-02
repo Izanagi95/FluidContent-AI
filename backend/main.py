@@ -419,7 +419,6 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
             original_text=article.content
         )
     )
-    logger.info("request_data:", request_data)
     return {
         "id": article.id,
         "title": article.title,
