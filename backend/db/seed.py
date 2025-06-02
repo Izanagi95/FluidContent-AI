@@ -155,6 +155,7 @@ def seed():
             authorId='a5',
             publishDate=date(2024, 5, 12), # Data potrebbe rimanere simile o leggermente aggiornata
             readTime=8, # Read time potrebbe variare leggermente
+            filename="",
             likes=295, # Likes potrebbero variare
             views=1350, # Views potrebbero variare
             isLiked=True,
@@ -259,6 +260,7 @@ def seed():
             authorId='a6',
             publishDate=date(2024, 4, 20),
             readTime=9,
+            filename="",
             likes=310,
             views=1500,
             isLiked=False,
