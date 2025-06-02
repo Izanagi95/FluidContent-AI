@@ -294,6 +294,17 @@ async def generate_html_from_llm(system_prompt: str, temperature: float = 0.5) -
         print(f"Errore durante la generazione HTML: {e}")
         raise HTTPException(status_code=500, detail="Errore durante la generazione HTML.")
 
+
+async def generate_html_content(request: ProcessRequest):
+    # Estrai la temperatura dalla richiesta se l'hai aggiunta a ProcessRequest, altrimenti usa un default
+    # current_temperature = request.llm_temperature if hasattr(request, 'llm_temperature') else 0.5
+    current_temperature = request.profile.preferences.get("llm_temperature", 0.5) # Esempio alternativo
+
+    system_prompt_content = build_system_prompt(request)
+    generated_html_content = await generate_html_from_llm(system_prompt_content, temperature=current_temperature)
+    generated_html_content = clean_html_output(generated_html_content)
+    return generated_html_content
+
 async def process_content_to_html(request: ProcessRequest = Body(...)):
     """
     Riceve il profilo utente e il contenuto testuale, e genera una pagina HTML
@@ -301,14 +312,7 @@ async def process_content_to_html(request: ProcessRequest = Body(...)):
     """
     print(f"Richiesta ricevuta per user_id: {request.profile.user_id}, titolo: {request.content.title}")
 
-    # Estrai la temperatura dalla richiesta se l'hai aggiunta a ProcessRequest, altrimenti usa un default
-    # current_temperature = request.llm_temperature if hasattr(request, 'llm_temperature') else 0.5
-    current_temperature = request.profile.preferences.get("llm_temperature", 0.5) # Esempio alternativo
-
-    system_prompt_content = build_system_prompt(request)
-    
-    generated_html_content = await generate_html_from_llm(system_prompt_content, temperature=current_temperature)
-    generated_html_content = clean_html_output(generated_html_content)
+    generated_html_content = await generate_html_content(request)
 
     # 1. Genera un filename univoco usando UUID
     generated_filename = f"{uuid.uuid4()}.html"

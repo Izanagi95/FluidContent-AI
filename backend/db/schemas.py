@@ -95,6 +95,8 @@ class ArticleGet(ArticleBase):
 class ArticleOut(ArticleBase):
     id: str
     author: Optional[UserOut]
+    filename: str
+
     
     class Config:
         orm_mode = True

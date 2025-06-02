@@ -75,7 +75,10 @@ const Settings = () => {
           </div>
         </Card>
         
-        <ProfileConfigurationCard />
+        {
+          userRole == 'consumer' &&
+          <ProfileConfigurationCard />
+        }
 
         {/* Notification Settings */}
         <Card className="p-6 mb-6">

@@ -188,6 +188,7 @@ def seed():
             authorId='a1',
             publishDate=date(2024, 4, 28),
             readTime=9,
+            filename="",
             likes=190,
             views=980,
             isLiked=False,
@@ -222,10 +223,11 @@ def seed():
             """,
             status='published',
             authorId='a2',
-            publishDate=date(2024, 5, 1),
-            readTime=11,
-            likes=420,
-            views=2100,
+            publishDate=date(2024, 1, 23),
+            readTime=12,
+            filename="",
+            likes=189,
+            views=945,
             isLiked=True,
             thumbnail='https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=400&h=250&fit=crop', # Travel
             tags=", ".join(["Viaggi", "Europa", "Low-Cost", "Budget", "Consigli"])
@@ -288,13 +290,14 @@ def seed():
             """,
             status='published',
             authorId='a3',
-            publishDate=date(2024, 5, 15),
-            readTime=12,
-            likes=550,
-            views=3200,
-            isLiked=True,
-            thumbnail='https://images.unsplash.com/photo-1614726365903-6746235378c4?w=400&h=250&fit=crop', # Space/JWST
-            tags=", ".join(["Scienza", "Astronomia", "JWST", "Spazio", "Universo"])
+            publishDate=date(2024, 1, 22),
+            readTime=15,
+            filename="",
+            likes=312,
+            views=2100,
+            isLiked=False,
+            thumbnail='https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop',
+            tags=", ".join(["React", "Performance", "JavaScript"])
         )
     ]
     db.add_all(articles)
