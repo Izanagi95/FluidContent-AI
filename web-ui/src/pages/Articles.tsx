@@ -54,8 +54,7 @@ const filteredArticles = articles.filter(article => {
     article.author.name.toLowerCase().includes(searchQuery.toLowerCase());
 
   const matchesTags = selectedTags.length === 0 ||
-    selectedTags.some(tagName => article.tags.some(t => t.name === tagName));
-
+    selectedTags.some(tagName => article.tags.some(t => t === tagName));
   return matchesSearch && matchesTags;
 });
 

@@ -1,7 +1,7 @@
 import json
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException, Body, Depends, UploadFile, File, Form, status
+from fastapi import FastAPI, HTTPException, Body, Depends, UploadFile, File, Form, status, BackgroundTasks
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -19,8 +19,10 @@ from models import (
     ProcessRequest, UserProfile, ContentInput, ErrorResponse,
     SignupRequest, LoginRequest
 )
-from ai_core import process_request, extract_tags, ArticleInput
+from ai_core import process_request, extract_tags, ArticleInput, HTMLOutput, generate_html_content
 from datetime import date
+import aiofiles
+import logging
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -31,7 +33,13 @@ app = FastAPI(
 
 Base.metadata.create_all(bind=engine)
 seed()
-print("Tabelle create:", Base.metadata.tables.keys())
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info(f"Tabelle create: {list(Base.metadata.tables.keys())}")
+
+OUTPUT_HTML_DIR = "generated_html_files" # Relativo alla directory
 
 app.add_middleware(
     CORSMiddleware,
@@ -116,8 +124,8 @@ async def save_article(
         with open(f"uploads/{image.filename}", "wb") as f:
             f.write(contents)
 
-    print("status:", status)
-    create_article(ArticleCreate(
+    logger.info(f"status: {status}")
+    await create_article(ArticleCreate(
         title=title,
         excerpt=content[:100],
         content=content,
@@ -130,7 +138,9 @@ async def save_article(
         isLiked=False,
         thumbnail="",  
         tags="" 
-    ),db)
+    ),
+    BackgroundTasks(),
+    db)
 
     return {"status": "article saved"}
 
@@ -289,7 +299,7 @@ def delete_userachievement(user_id: str, achievement_id: str, db: Session = Depe
 
 # CRUD Articles
 @app.post("/articles/", response_model=ArticleOut)
-def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
+async def create_article(article: ArticleCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
 
     article_input= ArticleInput(
         article_text=article.content,
@@ -298,6 +308,8 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
 
     article_tags = extract_tags(article_input)
 
+    generated_filename = f"{uuid.uuid4()}.html"
+    logger.info(f"Filename generato: {generated_filename}")
     new_article = Article(
         title=article.title,
         excerpt=article.excerpt,
@@ -309,13 +321,69 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
         views=article.views,
         isLiked=article.isLiked,
         thumbnail=article.thumbnail,
+        filename=generated_filename,
         tags = ",".join(article_tags.tags)
     )
 
     db.add(new_article)
     db.commit()
     db.refresh(new_article)
+
+    process_content_to_html_request = ProcessRequest(
+        profile=UserProfile(
+            user_id=article.authorId,
+            name="",
+            age=0,
+            interests=[],
+            preferences={}
+        ),
+        content=ContentInput(
+            title=article.title,
+            description=article.excerpt,
+            original_text=article.content
+        )
+    )
+    background_tasks.add_task(
+        process_content_to_html,
+        process_content_to_html_request,
+        generated_filename
+    )
     return new_article
+
+
+async def process_content_to_html(request: ProcessRequest, generated_filename: str):
+    logger.info(f"Richiesta ricevuta per user_id: {request.profile.user_id}, titolo: {request.content.title}")
+
+    generated_html_content = await generate_html_content(request)
+    if not generated_html_content:
+        raise HTTPException(status_code=500, detail="Impossibile generare il contenuto HTML.")
+
+    logger.info(f"HTML generato con successo per user_id: {request.profile.user_id}")
+
+    try:
+        os.makedirs(OUTPUT_HTML_DIR, exist_ok=True) 
+        logger.info(f"Directory di output '{OUTPUT_HTML_DIR}' assicurata.")
+    except OSError as e:
+        logger.info(f"Errore durante la creazione della directory '{OUTPUT_HTML_DIR}': {e}")
+        raise HTTPException(status_code=500, detail=f"Impossibile creare la directory di output: {e}")
+
+    file_path = os.path.join(OUTPUT_HTML_DIR, generated_filename)
+
+    try:
+        async with aiofiles.open(file_path, mode="w", encoding="utf-8") as f:
+            await f.write(generated_html_content)
+        logger.info(f"File HTML salvato con successo in: {file_path}")
+    except Exception as e:
+        logger.info(f"Errore durante il salvataggio del file HTML in '{file_path}': {e}")
+    
+    return HTMLOutput(
+        user_id=request.profile.user_id,
+        content_title=request.content.title,
+        filename=generated_filename,
+        generated_html=generated_html_content
+    )
+
+
 
 @app.get("/articles/", response_model=List[ArticleOut])
 def read_articles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -345,7 +413,7 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
             original_text=article.content
         )
     )
-    print("request_data:", request_data)
+    logger.info("request_data:", request_data)
     return {
         "id": article.id,
         "title": article.title,
@@ -504,5 +572,5 @@ def delete_configuration(config_id: str, db: Session = Depends(get_db)):
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)
 if __name__ == "__main__":
-    print(f"Avvio Uvicorn su host 0.0.0.0 e porta 8000...")
+    logger.info(f"Avvio Uvicorn su host 0.0.0.0 e porta 8000...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
