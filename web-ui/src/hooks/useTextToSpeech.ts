@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 
+const audioCache = new Map<string, string>(); // chiave: testo, valore: audio URL
+
 export const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -8,48 +10,52 @@ export const useTextToSpeech = () => {
 
   const speak = useCallback(async (text: string) => {
     try {
-      const payload = {
-        user: {
-          user_id: "user001",
-          name: "Alice",
-          age: 8,
-          preferred_voice_gender: "female",
-          preferred_voice_style: "energetic",
-          interests: ["cartoons", "fairy tales"]
-        },
-        content: {
-          title: "",
-          original_text: text
-        }
-      };
+      let audioUrl: string | undefined = audioCache.get(text);
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/text2speech/`, payload, {
-        responseType: 'blob'
-      });
+      if (!audioUrl) {
+        const payload = {
+          user: {
+            user_id: "user001",
+            name: "Alice",
+            age: 8,
+            preferred_voice_gender: "female",
+            preferred_voice_style: "energetic",
+            interests: ["cartoons", "fairy tales"]
+          },
+          content: {
+            title: "",
+            original_text: text
+          }
+        };
 
-      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
-      const audioUrl = URL.createObjectURL(audioBlob);
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/text2speech/`,
+          payload,
+          { responseType: 'blob' }
+        );
+
+        const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+        audioUrl = URL.createObjectURL(audioBlob);
+        audioCache.set(text, audioUrl);
+      }
 
       if (audioRef.current) {
         audioRef.current.pause();
-        URL.revokeObjectURL(audioRef.current.src);  // libera vecchio URL
+        URL.revokeObjectURL(audioRef.current.src);
       }
 
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
-      // Aggiorna stato a play
       audio.onplay = () => {
         setIsPlaying(true);
         setIsPaused(false);
       };
 
-      // Aggiorna stato a pausa
       audio.onpause = () => {
         setIsPaused(true);
       };
 
-      // Aggiorna stato a stop / fine
       audio.onended = () => {
         setIsPlaying(false);
         setIsPaused(false);
@@ -97,6 +103,6 @@ export const useTextToSpeech = () => {
     stop,
     isPlaying,
     isPaused,
-    isSupported: true  // Non usi più speechSynthesis, quindi lo dichiari supportato
+    isSupported: true
   };
 };

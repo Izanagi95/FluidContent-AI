@@ -10,7 +10,7 @@ import axios from "axios";
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeframe, setTimeframe] = useState<'week' | 'month' | 'all'>('all');
+  const [timeframe, setTimeframe] = useState<'month' | 'all'>('month');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -161,7 +161,7 @@ useEffect(() => {
         {/* Timeframe Selector */}
         <div className="flex justify-center mb-8">
           <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-            {(['week', 'month', 'all'] as const).map((period) => (
+            {(['month', 'all'] as const).map((period) => (
               <Button
                 key={period}
                 variant={timeframe === period ? "default" : "ghost"}
@@ -169,7 +169,7 @@ useEffect(() => {
                 onClick={() => setTimeframe(period)}
                 className={timeframe === period ? "bg-primary text-white" : ""}
               >
-                {period === 'week' ? 'This Week' : period === 'month' ? 'This Month' : 'All Time'}
+                {period === 'month' ? 'This Month' : 'All Time'}
               </Button>
             ))}
           </div>
@@ -295,12 +295,12 @@ useEffect(() => {
                 {isPlaying ? (
                   <>
                     <Pause className="h-5 w-5 mr-2" />
-                    Playing the Victory Song
+                    Playing the monthly Leaderboard Song
                   </>
                 ) : (
                   <>
                     <Volume2 className="h-5 w-5 mr-2" />
-                    Play the Victory Song
+                    Play the monthly Leaderboard Song
                   </>
                 )}
               </Button>
