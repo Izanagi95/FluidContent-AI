@@ -79,7 +79,6 @@ class Article(Base):
     isLiked = Column(Boolean, nullable=False)
     thumbnail = Column(String)
     filename = Column(String, nullable=True)
-
     author = relationship("User", back_populates="articles")
     tags = Column(String, nullable=True)  
 

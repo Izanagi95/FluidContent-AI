@@ -453,7 +453,7 @@ const openExternalResource = () => {
                   {showIframe && (
                     <div className="mt-4 h-[90vh] w-full border border-gray-300" style={{ height: "600px", border: "1px solid #ccc" }}>
                       <iframe
-                        src="/generated/code.html"
+                        src={article.filename=="" ? "/generated/code.html" : `${import.meta.env.VITE_API_URL}/downloadHTML/${article.filename}`}
                         title="External Learning Resources"
                         width="100%"
                         height="100%"

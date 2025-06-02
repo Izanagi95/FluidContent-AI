@@ -94,13 +94,13 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
     Restituisci un oggetto JSON strutturato con le seguenti chiavi:
     - "adapted_text": (stringa) Il testo completamente adattato.
     - "key_takeaways": (lista di stringhe) I punti chiave estratti.
+    - "suggested_title": (stringa, opzionale) Il nuovo titolo suggerito.
+    - "sentiment_analysis": (stringa, opzionale) L'analisi del sentiment.
     - "quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
         - "question": (stringa) Il testo della domanda.
         - "options": (lista di stringhe) Le opzioni di risposta.
         - "correct_answer": (intero) L'indice (0-based) dell'opzione corretta nella lista "options".
-    - "suggested_title": (stringa, opzionale) Il nuovo titolo suggerito.
-    - "sentiment_analysis": (stringa, opzionale) L'analisi del sentiment.
-
+        
     REGOLE IMPORTANTI:
     - Mantieni l'accuratezza fattuale del contenuto originale.
     - Non inventare informazioni.

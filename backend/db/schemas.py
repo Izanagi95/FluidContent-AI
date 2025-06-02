@@ -105,6 +105,7 @@ class ArticleOut(ArticleBase):
 class ArticleOutEnhanced(ArticleBase):
     author: Optional[UserOut]
     enhanced_content: object
+    filename: str
 
 class LeaderboardBase(BaseModel):
     id: str

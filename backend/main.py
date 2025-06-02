@@ -350,11 +350,12 @@ async def create_article(article: ArticleCreate, background_tasks: BackgroundTas
             original_text=article.content
         )
     )
-    background_tasks.add_task(
-        process_content_to_html_sync,
-        process_content_to_html_request,
-        generated_filename
-    )
+    # background_tasks.add_task(
+    #     process_content_to_html_sync,
+    #     process_content_to_html_request,
+    #     generated_filename
+    # )
+    await process_content_to_html(process_content_to_html_request, generated_filename)
     return new_article
 
 def process_content_to_html_sync(request: ProcessRequest, generated_filename: str):
@@ -436,7 +437,8 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
         "isLiked": article.isLiked,
         "thumbnail": article.thumbnail,
         "author": article.author,
-        "tags": "", # [tag.name for tag in article.tags],
+        "filename": article.filename,
+        "tags": article.tags,
         "enhanced_content": await process_content_endpoint(request_data)
     }
 
@@ -623,6 +625,19 @@ def download_file(filename: str):
 
     return FileResponse(path=safe_path, filename=safe_path.name, media_type='application/octet-stream')
 
+@app.get("/downloadHTML/{filename}")
+def download_file(filename: str):
+    safe_path = pathlib.Path(OUTPUT_HTML_DIR).joinpath(filename).resolve()
+    base_dir = pathlib.Path(OUTPUT_HTML_DIR).resolve()
+
+    if not safe_path.exists() or not safe_path.is_file() or base_dir not in safe_path.parents:
+        raise HTTPException(status_code=404, detail="File non trovato o accesso non consentito")
+
+    return FileResponse(
+        path=safe_path,
+        media_type="text/html",
+        headers={"Content-Disposition": "inline"}  # Mostra il file nell'iframe
+    )
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)
 if __name__ == "__main__":
     logger.info(f"Avvio Uvicorn su host 0.0.0.0 e porta 8000...")

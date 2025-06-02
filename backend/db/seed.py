@@ -122,6 +122,7 @@ def seed():
             authorId='a4',
             publishDate=date(2024, 5, 10),
             readTime=10,
+            filename="",
             likes=350,
             views=1800,
             isLiked=False,
