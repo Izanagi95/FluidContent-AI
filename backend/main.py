@@ -470,8 +470,8 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
             user_id=user.id,
             name=user.name,
             age=configuration.age_preference,
-            interests=["tecnologia", "sport", "viaggi"],
-            preferences={"lingua": "italiano", 
+            interests=configuration.interests.split(","),
+            preferences={"lingua": "italiano",
             "stile": configuration.tone_preference}
         ),
         content=ContentInput(

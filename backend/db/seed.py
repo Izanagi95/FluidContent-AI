@@ -26,6 +26,17 @@ def seed():
             "joinDate": date(2025, 5, 5)
         },
         {
+            "id": "2",
+            "name": "Chenghao",
+            "email": "chen@ai.com",
+            "avatar": "https://picx.zhimg.com/v2-76fbab64ce538272e15bf84059fc6293_1440w.jpg",
+            "level": 1,
+            "xp": 0,
+            "xpToNext": 50,
+            "totalXp": 5,
+            "joinDate": date(2025, 6, 3)
+        },
+        {
             "id": "a1",
             "name": "Sarah Johnson",
             "email": "sarah@ai.com",
@@ -126,7 +137,7 @@ def seed():
             likes=350,
             views=1800,
             isLiked=False,
-            thumbnail='https://images.unsplash.com/photo-1617957689234-7a8d4f6c9a9c?w=400&h=250&fit=crop', # Abstract tech
+            thumbnail='https://media.licdn.com/dms/image/v2/D5612AQF5B3PIJ_RL-A/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1690094165662?e=2147483647&v=beta&t=abIrQ16smGPox7b_brrZnacLfsYFAeCo2kIJ377EWEA', # Abstract tech
             tags=", ".join(["Tecnologia", "Calcolo Quantistico", "Innovazione"])
         ),
         Article(
@@ -160,7 +171,7 @@ def seed():
             likes=295, # Likes potrebbero variare
             views=1350, # Views potrebbero variare
             isLiked=True,
-            thumbnail='https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=400&h=250&fit=crop', # Calisthenics / bodyweight
+            thumbnail='https://scontent.cdninstagram.com/v/t51.75761-15/476770884_18443183365075683_6638025437457556827_n.jpg?stp=dst-jpg_e15_tt6&_nc_cat=101&ig_cache_key=MzU2NTU4MTQ4NzYyNTY3OTI5Mg%3D%3D.3-ccb1-7&ccb=1-7&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjU0MHg5NjAuc2RyIn0%3D&_nc_ohc=CZV0pws2dNUQ7kNvwHFMvjq&_nc_oc=Adn-6ZSfEGY5SYnAdcm54Ei0rAOnMfEYdGAKGjp1XKUBN4kF2uG-iMpKU6Yy7fpFqWQ&_nc_ad=z-m&_nc_cid=1093&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&_nc_gid=1Taf7ycpx6dlh2mWbUXvaA&oh=00_AfK0S-JumhVGR0wOawaqTtcSMYZYDdwebGoZozFlxOOBng&oe=6843EEDF', # Calisthenics / bodyweight
             tags=", ".join(["Fitness", "Salute", "Calisthenics", "Allenamento a Corpo Libero", "Forza"])
         ),
         Article(
@@ -194,7 +205,7 @@ def seed():
             likes=190,
             views=980,
             isLiked=False,
-            thumbnail='https://images.unsplash.com/photo-1585102902907-955f3e0f15b2?w=400&h=250&fit=crop', # Sustainable shopping
+            thumbnail='https://www.bee-social.it/wp-content/uploads/2015/08/shopping-on-line-come-creare-negozio-online.jpg', # Sustainable shopping
             tags=", ".join(["Shopping", "Sostenibilità", "Etica", "Consumo Consapevole"])
         ),
         Article(
@@ -265,7 +276,7 @@ def seed():
             likes=310,
             views=1500,
             isLiked=False,
-            thumbnail='https://images.unsplash.com/photo-1524578254289-77175071768a?w=400&h=250&fit=crop', # Language learning
+            thumbnail='https://catania.unicusano.it/wp-content/uploads/2019/11/come-impapare-velocemente-una-lingua-bandiere.jpg', # Language learning
             tags=", ".join(["Lingue", "Apprendimento", "Educazione", "Risorse", "Autodidatta"])
         ),
         Article(

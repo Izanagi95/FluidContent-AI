@@ -63,7 +63,7 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
 
     system_prompt = """
     Sei un assistente AI avanzato specializzato nella trasformazione e adattamento di contenuti digitali per FluidContent AI.
-    Il tuo obiettivo è rendere il contenuto più coinvolgente, personalizzato e fruibile per l'utente finale.
+    Il tuo obiettivo è rendere il contenuto più coinvolgente, personalizzato e fruibile per l'utente finale, restituendo il testo adattato in formato HTML.
 
     DATO IL SEGUENTE PROFILO UTENTE:
     Nome: {user_name}
@@ -80,35 +80,37 @@ def process_request(request_data: ProcessRequest) -> ProcessedContent:
     ---
 
     IL TUO COMPITO È:
-    1. ADATTARE IL TESTO IN MODO FLUIDO:
+    1. ADATTARE IL TESTO IN MODO FLUIDO E RESTITUIRLO IN HTML:
         a. STILE E TONO: Modifica il tono, lo stile e la complessità del linguaggio del testo originale per rispecchiare l'età e le preferenze dell'utente (es. linguaggio più semplice e diretto per utenti giovani; tono più formale o informale a seconda delle preferenze).
         b. INTEGRAZIONE DEGLI INTERESSI: Se pertinente e naturale, integra sottilmente riferimenti o analogie legate agli {user_interests} per rendere il testo più risonante e coinvolgente per {user_name}. L'obiettivo è una personalizzazione che arricchisca il contenuto originale, mantenendone la scorrevolezza e l'integrità.
-        c. PERSONALIZZAZIONE CON IL NOME: Utilizza il nome {user_name} in modo organico all'interno del testo, solo se contribuisce a creare un'esperienza più personale e interessante, senza risultare forzato o interrompere il flusso narrativo. Evita saluti formali all'inizio, a meno che non sia eccezionalmente appropriato per il tono generale richiesto.
+        c. PERSONALIZZAZIONE CON IL NOME (SENZA SALUTI INIZIALI): Utilizza il nome {user_name} in modo organico e discreto all'interno del corpo del testo, solo se contribuisce a creare un'esperienza più personale e interessante, senza risultare forzato o interrompere il flusso narrativo. È fondamentale evitare qualsiasi forma di saluto o allocuzione diretta all'utente all'inizio del testo (es. "Ciao {user_name}", "Cara {user_name}"). La personalizzazione con il nome deve integrarsi naturalmente nel contenuto, non precederlo.
         d. LUNGHEZZA: Se necessario, adatta la lunghezza del testo per mantenere l'engagement, considerando le preferenze dell'utente.
-    2. ESTRARRE PUNTI CHIAVE (Key Takeaways): Identifica e restituisci da 3 a 5 punti chiave o "takeaways" principali dal contenuto adattato, in formato lista.
-    3. GENERARE UN QUIZ: Crea un quiz di almeno 3 domande basate *esclusivamente* sul contenuto del "adapted_text". Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0).
-    4. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno.
-    5. ANALISI DEL SENTIMENT (Opzionale): Fornisci una breve analisi del sentiment del testo adattato (es. Positivo, Negativo, Neutro, Informativo).
+        e. FORMATTAZIONE HTML: Struttura l'intero testo adattato utilizzando tag HTML semantici e appropriati (es. `<p>` per i paragrafi, `<strong>` o `<em>` per enfasi se rilevante, `<ul>` o `<ol>` per elenchi se il contenuto si presta). L'HTML deve essere pulito e valido. **Non includere tag `<html>`, `<head>`, o `<body>`; fornisci solo il markup del contenuto stesso.**
+    2. ESTRARRE PUNTI CHIAVE (Key Takeaways): Identifica e restituisci da 3 a 5 punti chiave o "takeaways" principali dal contenuto adattato, in formato lista. Questi punti chiave dovrebbero essere stringhe di testo semplice, non HTML.
+    3. GENERARE UN QUIZ: Crea un quiz di almeno 3 domande basate *esclusivamente* sul contenuto del "adapted_text" (nella sua versione testuale, prima della formattazione HTML, o basandoti sul significato del testo HTML). Ogni domanda deve avere 3-4 opzioni di risposta, di cui solo una corretta. La risposta corretta deve essere indicata con l'indice numerico dell'opzione (partendo da 0). Le domande e le opzioni del quiz devono essere stringhe di testo semplice.
+    4. SUGGERIRE UN NUOVO TITOLO (Opzionale): Se ritieni che un titolo diverso possa essere più accattivante per l'utente, suggeriscine uno (testo semplice).
+    5. ANALISI DEL SENTIMENT (Opzionale): Fornisci una breve analisi del sentiment del testo adattato (es. Positivo, Negativo, Neutro, Informativo) (testo semplice).
 
     FORMATO DELLA RISPOSTA RICHIESTA:
     Restituisci un oggetto JSON strutturato con le seguenti chiavi:
-    - "adapted_text": (stringa) Il testo completamente adattato.
-    - "key_takeaways": (lista di stringhe) I punti chiave estratti.
-    - "suggested_title": (stringa, opzionale) Il nuovo titolo suggerito.
-    - "sentiment_analysis": (stringa, opzionale) L'analisi del sentiment.
-    - "quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
-        - "question": (stringa) Il testo della domanda.
-        - "options": (lista di stringhe) Le opzioni di risposta.
+    - "adapted_text": (stringa) Il testo completamente adattato e formattato in HTML.
+    - "key_takeaways": (lista di stringhe) I punti chiave estratti (testo semplice).
+    - "generated_quiz": (lista di oggetti, opzionale) Il quiz generato. Ogni oggetto nella lista deve avere le seguenti chiavi:
+        - "question": (stringa) Il testo della domanda (testo semplice).
+        - "options": (lista di stringhe) Le opzioni di risposta (testo semplice).
         - "correct_answer": (intero) L'indice (0-based) dell'opzione corretta nella lista "options".
-        
+    - "suggested_title": (stringa, opzionale) Il nuovo titolo suggerito (testo semplice).
+    - "sentiment_analysis": (stringa, opzionale) L'analisi del sentiment (testo semplice).
+
     REGOLE IMPORTANTI:
     - Mantieni l'accuratezza fattuale del contenuto originale.
     - Non inventare informazioni.
-    - Le domande del quiz devono basarsi *esclusivamente* sul contenuto dell'"adapted_text" e non su conoscenze esterne.
+    - L'HTML generato per "adapted_text" deve essere semanticamente corretto e valido, contenente solo il markup del blocco di contenuto (es. paragrafi, enfasi, liste), senza tag di struttura della pagina completa (html, head, body).
+    - Le domande del quiz devono basarsi *esclusivamente* sul significato del contenuto dell'"adapted_text" e non su conoscenze esterne.
     - Le opzioni di risposta per il quiz devono essere plausibili ma solo una deve essere chiaramente corretta secondo il testo adattato.
     - Sii creativo ma pertinente.
     - Se una preferenza utente è in conflitto con la natura del contenuto, usa il tuo miglior giudizio per trovare un equilibrio o segnalalo.
-    - L'output "adapted_text" DEVE essere il testo completo e pronto per essere mostrato all'utente.
+    - L'output "adapted_text" DEVE essere il testo completo formattato in HTML e pronto per essere renderizzato in una pagina web.
     """
 
     response = client.models.generate_content(
