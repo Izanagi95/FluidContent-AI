@@ -134,6 +134,15 @@ const openExternalResource = () => {
     }
   };
 
+  function isValidUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+}
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
@@ -184,7 +193,7 @@ const openExternalResource = () => {
         {/* Article Header */}
         <div className="mb-8">
           <img 
-            src={article.thumbnail}
+            src={isValidUrl(article.thumbnail) ? article.thumbnail : import.meta.env.VITE_API_URL + "/download/"+ article.thumbnail}
             alt={article.title}
             className="w-full h-64 md:h-80 rounded-lg object-cover mb-6"
           />

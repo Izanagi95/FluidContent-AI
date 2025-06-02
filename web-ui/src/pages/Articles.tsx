@@ -45,7 +45,16 @@ const Articles = () => {
     loadArticles();
   }, [navigate]);
 
+function isValidUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+}
 
+  
 // allTags ora sono i nomi unici dei tag
 const allTags = [...new Set(articles.flatMap(article => article.tags.map(tag => tag)))];
 const filteredArticles = articles.filter(article => {
@@ -187,7 +196,7 @@ const toggleTag = (tagName: string) => {
             <Card key={article.id} className="p-6 hover-lift">
               <div className="flex flex-col md:flex-row gap-6">
                 <img 
-                  src={article.thumbnail}
+                  src={isValidUrl(article.thumbnail) ? article.thumbnail : import.meta.env.VITE_API_URL + "/download/"+ article.thumbnail}
                   alt={article.title}
                   className="w-full md:w-48 h-32 rounded-lg object-cover"
                 />

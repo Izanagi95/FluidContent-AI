@@ -1,6 +1,7 @@
 import json
 import os
 import uvicorn
+import pathlib
 from fastapi import FastAPI, HTTPException, Body, Depends, UploadFile, File, Form, status, BackgroundTasks
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,8 +26,7 @@ import aiofiles
 import logging
 import asyncio
 from text_to_speech import generate_audio_for_user
-from fastapi.responses import StreamingResponse
-from elevenlabs import ElevenLabs, save
+from fastapi.responses import StreamingResponse, FileResponse
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 logger.info(f"Tabelle create: {list(Base.metadata.tables.keys())}")
 
 OUTPUT_HTML_DIR = "generated_html_files" # Relativo alla directory
+FILE_DIRECTORY = "uploads"
 
 app.add_middleware(
     CORSMiddleware,
@@ -122,11 +123,13 @@ async def save_article(
 ):
 
     # TODO - save in DB
-    os.makedirs("uploads", exist_ok=True)
+    os.makedirs(FILE_DIRECTORY, exist_ok=True)
+    image_to_save = ""
     for image in images:
         contents = await image.read()
-        with open(f"uploads/{image.filename}", "wb") as f:
+        with open(f"{FILE_DIRECTORY}/{image.filename}", "wb") as f:
             f.write(contents)
+            image_to_save = image.filename
 
     logger.info(f"status: {status}")
     await create_article(ArticleCreate(
@@ -140,7 +143,7 @@ async def save_article(
         likes=0,
         views=0,
         isLiked=False,
-        thumbnail="",  
+        thumbnail=image_to_save,  
         tags="" 
     ),
     BackgroundTasks(),
@@ -591,22 +594,6 @@ def text2speech():
 
     return generate_audio_for_user(user1_profile, content1)
 
-
-    # const payload = {
-    #   user: {
-    #     user_id: "user001",
-    #     name: "Alice",
-    #     age: 8,
-    #     preferred_voice_gender: "female",
-    #     preferred_voice_style: "energetic",
-    #     interests: ["cartoons", "fairy tales"]
-    #   },
-    #   content: {
-    #     title: "",
-    #     original_text: text
-    #   }
-    # };
-
 @app.post("/text2speech/")
 def text2speech(request: object = Body(...)):
 
@@ -618,13 +605,23 @@ def text2speech(request: object = Body(...)):
 
     content_input = ContentInput(
         title=request["content"]["title"],
-        original_text="PROVA a scrivere questo" #request["content"]["original_text"]
+        original_text=request["content"]["original_text"]
     )
-
     result = generate_audio_for_user(user_profile, content_input)
     audio_stream = result["stream"] 
     return StreamingResponse(audio_stream, media_type="audio/mpeg")
 
+
+
+@app.get("/download/{filename}")
+def download_file(filename: str):
+    safe_path = pathlib.Path(FILE_DIRECTORY).joinpath(filename).resolve()
+    base_dir = pathlib.Path(FILE_DIRECTORY).resolve()
+
+    if not safe_path.exists() or not safe_path.is_file() or base_dir not in safe_path.parents:
+        raise HTTPException(status_code=404, detail="File non trovato o accesso non consentito")
+
+    return FileResponse(path=safe_path, filename=safe_path.name, media_type='application/octet-stream')
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)
 if __name__ == "__main__":
