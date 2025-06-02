@@ -61,9 +61,20 @@ const Settings = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold mb-2">Current Role</h3>
-              <Badge className="bg-primary/10 text-primary border-primary/20">
-                {userRole === 'consumer' ? 'Content Consumer' : 
-                 userRole === 'maker' ? 'Content Maker' : 'Content Provider'}
+              <Badge
+                className={
+                  userRole === 'consumer'
+                    ? 'bg-blue-100 text-blue-600 border-blue-300'
+                    : userRole === 'maker'
+                    ? 'bg-red-100 text-red-600 border-red-300'
+                  : 'bg-green-100 text-green-600 border-green-300'
+                }
+              >
+                {userRole === 'consumer'
+                  ? 'Content Consumer'
+                  : userRole === 'maker'
+                  ? 'Content Maker'
+                  : 'Content Provider'}
               </Badge>
             </div>
             <Button variant="outline" onClick={() => {
