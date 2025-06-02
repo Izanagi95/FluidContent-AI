@@ -148,8 +148,8 @@ How to locally run the application.
 A small corner for thanks and the inspirations that contributed to the realization of FluidContent AI.
 
 *   **Inspirational Quote:**
-    *   Bruce Lee, for his philosophy <a href="https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k">*"Be water, my friend."*</a> which inspired the name and adaptive approach of our project.<br>
-    <a href="https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k"><img src="img/brucelee.jpg" width="180" height="100" alt="Bruce Lee: Be water, my friend."></a>
+    *   Bruce Lee, for his philosophy <a href="https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k" target="_blank">*"Be water, my friend."*</a> which inspired the name and adaptive approach of our project.<br>
+    <a href="https://www.youtube.com/watch?v=cJMwBwFj5nQ&pp=ygUSYmUgd2F0ZXIgbXkgZnJpZW5k" target="_blank"><img src="img/brucelee.jpg" width="180" height="100" alt="Bruce Lee: Be water, my friend."></a>
 
 *   **Hackathon Organizers & Mentors:**
     *   A special thank you to **Codemotion** for organizing this stimulating hackathon, and to **PLAI** for promoting this event.
