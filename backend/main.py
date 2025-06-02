@@ -23,6 +23,10 @@ from ai_core import process_request, extract_tags, ArticleInput, HTMLOutput, gen
 from datetime import date
 import aiofiles
 import logging
+import asyncio
+from text_to_speech import generate_audio_for_user
+from fastapi.responses import StreamingResponse
+from elevenlabs import ElevenLabs, save
 
 # --- Inizializzazione dell'app FastAPI ---
 app = FastAPI(
@@ -344,11 +348,14 @@ async def create_article(article: ArticleCreate, background_tasks: BackgroundTas
         )
     )
     background_tasks.add_task(
-        process_content_to_html,
+        process_content_to_html_sync,
         process_content_to_html_request,
         generated_filename
     )
     return new_article
+
+def process_content_to_html_sync(request: ProcessRequest, generated_filename: str):
+    return asyncio.run(process_content_to_html(request, generated_filename))
 
 
 async def process_content_to_html(request: ProcessRequest, generated_filename: str):
@@ -382,7 +389,6 @@ async def process_content_to_html(request: ProcessRequest, generated_filename: s
         filename=generated_filename,
         generated_html=generated_html_content
     )
-
 
 
 @app.get("/articles/", response_model=List[ArticleOut])
@@ -568,6 +574,57 @@ def delete_configuration(config_id: str, db: Session = Depends(get_db)):
     db.delete(config)
     db.commit()
     return {"detail": "Configuration deleted"}
+
+
+@app.get("/text2speech/", response_model=object)
+def text2speech():
+
+    user1_profile = UserProfile(
+    user_id="user001", name="Alice", age=8,
+    preferred_voice_gender="female", preferred_voice_style="energetic",
+    interests=["cartoons", "fairy tales"]
+    )
+
+    content1 = ContentInput(
+        title="The Magical Forest",
+        original_text="Once upon a time, in a magical forest, lived a little squirrel named Squeaky. Squeaky loved adventures!"
+    )
+
+    return generate_audio_for_user(user1_profile, content1)
+
+
+    # const payload = {
+    #   user: {
+    #     user_id: "user001",
+    #     name: "Alice",
+    #     age: 8,
+    #     preferred_voice_gender: "female",
+    #     preferred_voice_style: "energetic",
+    #     interests: ["cartoons", "fairy tales"]
+    #   },
+    #   content: {
+    #     title: "",
+    #     original_text: text
+    #   }
+    # };
+
+@app.post("/text2speech/")
+def text2speech(request: object = Body(...)):
+
+    user_profile = UserProfile(
+    user_id=request["user"]["user_id"], name=request["user"]["name"], age=request["user"]["age"],
+    preferred_voice_gender=request["user"]["preferred_voice_gender"], preferred_voice_style=request["user"]["preferred_voice_style"],
+    interests=request["user"]["interests"]
+    )
+
+    content_input = ContentInput(
+        title=request["content"]["title"],
+        original_text="PROVA a scrivere questo" #request["content"]["original_text"]
+    )
+
+    result = generate_audio_for_user(user_profile, content_input)
+    audio_stream = result["stream"] 
+    return StreamingResponse(audio_stream, media_type="audio/mpeg")
 
 
 # Per eseguire l'app con Uvicorn (se esegui questo file direttamente)

@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 load_dotenv()
 
 # --- CONFIGURATION: OUTPUT DIRECTORY ---
-AUDIO_OUTPUT_DIRECTORY = "backend/generated_audio" # Name of the folder to save audio files
+AUDIO_OUTPUT_DIRECTORY = "generated_audio" # Name of the folder to save audio files
 
 class UserProfile(BaseModel):
     user_id: str
@@ -96,14 +96,14 @@ def select_voice_id(profile: UserProfile) -> str:
 
 
 def generate_audio_for_user(
-    client: ElevenLabs,
     user_profile: UserProfile,
     content: ContentInput,
+    client: ElevenLabs = ElevenLabs(api_key=os.getenv("ELABS_API_KEY")),
     base_filename: str = "output.mp3", # Just the filename, not the path
     output_directory: str = AUDIO_OUTPUT_DIRECTORY, # Use the configured directory
     model_id: str = "eleven_multilingual_v2",
     output_format: str = "mp3_44100_128"
-) -> str:
+) -> object:
     """
     Generates audio for the given user profile and content, saving it to a file
     within the specified output directory.
@@ -129,9 +129,9 @@ def generate_audio_for_user(
             model_id=model_id,
         )
 
-        save(audio_stream, str(full_output_path)) # save expects a string path
+        # save(audio_stream, str(full_output_path)) # save expects a string path
         print(f"Audio successfully saved to {full_output_path}")
-        return str(full_output_path)
+        return {"path":str(full_output_path), "stream": audio_stream}
     except Exception as e:
         print(f"Error during ElevenLabs API call or saving audio: {e}")
         raise

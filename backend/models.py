@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Literal
 from pydantic import BaseModel, Field, EmailStr
 
 # INPUT
@@ -8,6 +8,13 @@ class UserProfile(BaseModel):
     age: Optional[int] = Field(default=None, description="Età dell'utente, se disponibile", ge=0)
     interests: List[str] = Field(default_factory=list, description="Interessi personali dell'utente")
     preferences: Dict[str, Any] = Field(default_factory=dict, description="Preferenze varie")
+        # More specific preferences for voice selection
+    preferred_voice_gender: Optional[Literal["female", "male", "neutral"]] = Field(
+        default=None, description="Preferred voice gender (female, male, neutral)"
+    )
+    preferred_voice_style: Optional[Literal["calm", "energetic", "formal", "narration"]] = Field(
+        default=None, description="Preferred voice style (e.g., calm, energetic, formal, narration)"
+    )
 
 class ContentInput(BaseModel):
     title: str
