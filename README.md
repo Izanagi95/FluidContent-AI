@@ -56,6 +56,8 @@ The output is a structured JSON for seamless integration into any digital platfo
 
 ![FluidContent-AI architecture](img/fluidcontent-ai-architecture.png "FluidContent AI architecture")
 
+---
+
 ## 🚀 Running the Application
 
 How to locally run the application.
