@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  # backend:
-  #   build:
-  #     context: ./backend
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - ./backend:/app  # per hot reload
-  #   environment:
-  #     PYTHONUNBUFFERED: '1'
-  #   restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app  # per hot reload
+    environment:
+      PYTHONUNBUFFERED: '1'
+    restart: unless-stopped
 
   frontend:
     build:
@@ -21,5 +21,6 @@ services:
     volumes:
       - ./web-ui:/app  # per hot reload
     environment:
+      VITE_API_URL: http://backend:8000  # rimuovi le virgolette
       CHOKIDAR_USEPOLLING: 'true'
     restart: unless-stopped
