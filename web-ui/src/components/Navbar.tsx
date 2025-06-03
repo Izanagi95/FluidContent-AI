@@ -96,11 +96,17 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
+            {userRole === 'consumer' ? 
+            <Link to="/articles" className="flex items-center space-x-2">
+              {/* <Sparkles className="h-8 w-8 text-primary" /> */}
+              <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
+              <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
+            </Link> :
             <Link to="/dashboard" className="flex items-center space-x-2">
               {/* <Sparkles className="h-8 w-8 text-primary" /> */}
               <img src="/resources/logo.png" alt="FluidContent AI Logo" className="h-16 w-16" />
               <span className="text-2xl font-bold gradient-text">FluidContent AI</span>
-            </Link>
+            </Link>}
             {/* {isAuthenticated && (
               <Badge className="bg-primary/10 text-primary border-primary/20 hidden sm:flex">
                 <RoleIcon className="h-3 w-3 mr-1" />
