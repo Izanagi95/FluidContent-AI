@@ -233,16 +233,86 @@ def build_system_prompt(request_data: ProcessRequest) -> str:
     Testo Principale:
     {content.original_text}
 
-    Devi generare un singolo file HTML auto-contenuto (.html) che includa quanto segue:
-    Per la STRUTTURA HTML: un documento HTML5 ben formato; l'input title nel tag <title> e come un <h1> (che potrebbe essere un overlay o un'intestazione minimale sopra la mappa); l'input descrizione per il tag <meta name="description"> e forse un breve testo introduttivo; un elemento <canvas> che sarà gestito da Fabric.js per disegnare la mappa concettuale. Le informazioni da original_text devono essere analizzate per estrarre concetti (nodi) e relazioni (collegamenti); le informazioni testuali associate a ciascun concetto devono essere semplificate e visualizzate dinamicamente quando un utente interagisce con il nodo corrispondente (es. in un popup o pannello laterale).
-    Per lo STYLING CSS: tutto il CSS deve essere incluso internamente; lo styling deve essere moderno, chiaro e coinvolgente, supportando la natura visiva di una mappa concettuale; cruciale è lo styling per nodi, collegamenti, etichette, e elementi UI interattivi (es. pannelli informativi che appaiono al click, tooltip); la pagina deve essere responsive, con la mappa concettuale che si adatta bene e rimane navigabile.
-    Per la FUNZIONALITÀ JAVASCRIPT: tutto il JavaScript deve essere incluso internamente (eccetto i CDN per le librerie). Le librerie da includere via CDN sono Fabric.js (ad esempio, <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script> o versione più recente stabile) e Anime.js (ad esempio, <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>).
-    La rappresentazione della mappa concettuale con Fabric.js utilizzerà Fabric.js per disegnare la mappa sul canvas. I Nodi saranno creati come oggetti Fabric (fabric.Rect, fabric.Circle, fabric.Text, fabric.Group) per rappresentare i concetti, ognuno idealmente con un'etichetta testuale breve e chiara; si valuterà l'utilizzo di icone SVG (es. da svgrepo.com tramite fabric.loadSVGFromURL o stringhe SVG) all'interno dei nodi per migliorarne la riconoscibilità e l'appeal visivo. I Collegamenti saranno disegnati come linee o curve (fabric.Line, fabric.Path) per rappresentare le relazioni tra i nodi, e potranno avere frecce o etichette per indicare la direzione o la natura della relazione. Il Layout disporrà i nodi e i collegamenti in modo chiaro e logico.
-    L'interattività fondamentale con Fabric.js includerà: la selezione dei nodi da parte dell'utente tramite click; la visualizzazione di informazioni dettagliate (semplificate) in un pannello/popup al click su un nodo; effetti di hover sui nodi e/o sui collegamenti per feedback visivo; opzionalmente (ma raccomandato per mappe grandi), funzionalità di zoom e pan del canvas.
-    Le animazioni coinvolgenti con Anime.js renderanno la mappa dinamica e coinvolgente: animando la comparsa/scomparsa dei pannelli informativi; animando l'entrata in scena di nodi e collegamenti; creando transizioni fluide al focus su un nodo; animando l'evidenziazione di nodi e collegamenti; e qualsiasi altra animazione utile.
-    AUTO-CONTENUTO: Il file HTML generato non deve richiedere alcun file CSS o JS esterno (ad eccezione dei CDN specificati).
-    LINEE GUIDA CREATIVE: Chiarezza e comprensione (la mappa deve rendere i concetti e le relazioni immediatamente comprensibili); Coinvolgimento visivo e interattivo (animazioni e design curato per esplorazione piacevole); L'interazione è centrale (l'utente scopre informazioni tramite interazione diretta); Informazioni concise su richiesta (il testo nei popup/pannelli è semplificato); Performance (animazioni e interazioni fluide); Coerenza visiva (stile grafico coerente).
-    FORMATO DELL'OUTPUT: Fornisci SOLO il codice HTML completo come output. Non includere alcun testo esplicativo prima o dopo il blocco di codice.
+    Devi generare un singolo file HTML auto-contenuto (.html) che visualizzi un articolo fornito come una mappa concettuale interattiva e animata.
+    L'obiettivo è rendere il contenuto più comprensibile e interessante attraverso una navigazione visuale dei suoi concetti chiave.
+
+    LIBRERIE DA UTILIZZARE (via CDN):
+    1. Vis.js Network: Per la creazione, il layout e l'interattività della mappa concettuale (nodi e archi).
+       (Esempio CDN: <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>)
+    2. Anime.js: Per animazioni dell'interfaccia utente (es. pannello informativo) e potenziali effetti visivi aggiuntivi.
+       (Esempio CDN: <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>)
+
+    INPUT FORNITO (saranno passati come variabili separate o all'interno di un blocco di testo più ampio):
+    - `article_title`: Il titolo dell'articolo.
+    - `article_introduction`: Un breve paragrafo introduttivo dell'articolo.
+    - `article_full_text`: Il testo completo dell'articolo da cui estrarre i concetti.
+
+    STRUTTURA HTML RICHIESTA:
+    1. Documento HTML5 ben formato.
+    2. Il `article_title` nel tag `<title>` e come `<h1>` in un `<header>`.
+    3. L'`article_introduction` (o una sua sintesi) come testo introduttivo sotto l'header.
+    4. Un `<div>` contenitore (es. con id `mindmap-container`) per la mappa di Vis.js, che occupi la maggior parte dell'area visibile.
+    5. Un `<div>` per un pannello informativo laterale (es. con id `info-panel`), inizialmente nascosto fuori schermo, che mostrerà i dettagli del nodo selezionato. Deve includere un titolo per il concetto e un'area per il contenuto, più un pulsante di chiusura.
+
+    STYLING CSS (interno al tag `<style>`):
+    1. Design moderno, pulito e professionale. Sfondo chiaro per la pagina, colori contrastanti per il testo.
+    2. Header stilizzato. Testo introduttivo ben leggibile.
+    3. Il contenitore della mappa deve avere bordi e un leggero box-shadow.
+    4. Il pannello informativo deve essere ben stilizzato, con padding, margini appropriati, e un'estetica che si integri con il resto. Deve avere uno scorrimento verticale se il contenuto è lungo.
+    5. Stili per un pulsante di chiusura attraente sul pannello informativo.
+    6. La pagina deve essere ragionevolmente responsive, almeno assicurando che la mappa e il pannello siano utilizzabili su schermi di medie dimensioni.
+
+    FUNZIONALITÀ JAVASCRIPT (interna al tag `<script>`, dopo i CDN):
+
+    A. ESTRAZIONE CONCETTI E PREPARAZIONE DATI PER VIS.JS:
+        1. Analizza `article_full_text` per identificare i concetti chiave principali e le loro relazioni gerarchiche o tematiche.
+           - Considera i titoli delle sezioni e sottosezioni (se presenti o inferibili) come concetti principali.
+           - Estrai brevi riassunti o punti chiave per ogni concetto da mostrare nel pannello informativo.
+        2. Crea un nodo radice per `article_title` (con `article_introduction` come descrizione/tooltip).
+        3. Crea nodi per i concetti principali identificati, collegandoli al nodo radice o ad altri concetti in modo logico.
+        4. Se possibile, identifica concetti di secondo livello (dettagli o sottocomponenti) e collegali ai rispettivi nodi principali.
+        5. Struttura questi dati in array/oggetti adatti per `vis.DataSet()` (per `nodes` e `edges`).
+           - Per i `nodes`: includi `id`, `label` (breve testo per il nodo), `title` (tooltip più lungo per l'hover), `data` (oggetto custom contenente il testo dettagliato/summary per il pannello informativo), e opzionalmente `level` (per il layout), `shape`, `color`. Varia forme e colori per distinguere i livelli o tipi di concetti.
+           - Per gli `edges`: includi `from`, `to`, e opzionalmente `arrows: 'to'`.
+
+    B. INIZIALIZZAZIONE VIS.JS NETWORK:
+        1. Crea un'istanza di `vis.Network` nel `<div>` contenitore, usando i `nodes` e `edges` preparati.
+        2. Configura le `options` di Vis.js per:
+           - Un aspetto gradevole di nodi e archi (es. `borderWidth`, `font`, `size`, `edge width`, `arrow scale`).
+           - Fisica per il layout automatico (es. `barnesHut` con `gravitationalConstant`, `centralGravity`, `springLength` appropriati per una buona spaziatura e leggibilità). Abilita la stabilizzazione.
+           - Interattività: `hover` (per tooltip), `dragNodes`, `dragView`, `zoomView`.
+           - Layout: Esplora se un layout `hierarchical` (disabilitato di default ma configurabile) o la fisica pura (`barnesHut`) sia più adatta a seconda della struttura dei dati estratta.
+
+    C. GESTIONE PANNELLO INFORMATIVO E INTERAZIONI:
+        1. Scrivi funzioni JavaScript `showInfoPanel(nodeData)` e `hideInfoPanel()`.
+        2. `showInfoPanel`: Popola il titolo e il contenuto del pannello informativo con i dati del nodo (`nodeData.label` e `nodeData.data.content` o `nodeData.data.summary`).
+        3. Usa Anime.js per animare l'entrata (es. slide-in da destra, fade-in) e l'uscita (slide-out, fade-out) del pannello informativo.
+        4. Aggiungi un event listener al pulsante di chiusura per chiamare `hideInfoPanel()`.
+        5. Gestisci l'evento `click` sulla rete Vis.js:
+           - Se un nodo è cliccato (`params.nodes.length > 0`):
+             - Recupera i dati del nodo (`nodes.get(nodeId)`).
+             - Chiama `showInfoPanel()` con i dati del nodo.
+             - Usa `network.focus(nodeId, """ + """{ scale: ..., animation: ... })` per zoomare e centrare il nodo selezionato con un'animazione fluida fornita da Vis.js.
+           - Se si clicca fuori da un nodo: chiama `hideInfoPanel()`.
+        6. Gestisci gli eventi `hoverNode` e `blurNode` per cambiare il cursore del mouse (es. a `pointer` sull'hover).
+
+    D. ANIMAZIONI AGGIUNTIVE CON ANIME.JS (Opzionale ma Incoraggiato):
+        1. Anima l'apparizione iniziale dell'header e del testo introduttivo all'avvio della pagina.
+        2. Valuta se è possibile applicare animazioni sottili (es. un leggero "pulse" o cambio di colore temporaneo) a un nodo quando viene selezionato, coordinando con le API di Vis.js se necessario, o animando un overlay DOM se più semplice.
+
+    AUTO-CONTENUTO:
+    Il file HTML generato deve essere completamente auto-contenuto, senza dipendenze da file CSS o JS esterni, ad eccezione dei CDN specificati per Vis.js Network e Anime.js.
+
+    LINEE GUIDA CREATIVE E FUNZIONALI:
+    - CHIAREZZA: La mappa deve essere intuitiva e le relazioni tra concetti chiare.
+    - COINVOLGIMENTO: Il design e le animazioni devono rendere l'esplorazione piacevole.
+    - INTERATTIVITÀ: L'utente scopre informazioni interagendo direttamente con la mappa.
+    - CONCISIONE: Le informazioni nel pannello devono essere riassuntive e pertinenti.
+    - PERFORMANCE: La mappa deve essere fluida e responsiva.
+    - ESTETICA: Look and feel moderno e professionale.
+
+    FORMATO DELL'OUTPUT:
+    Fornisci SOLO il codice HTML completo come output. Non includere alcun testo esplicativo prima o dopo il blocco di codice.
     """
     return system_prompt
 
