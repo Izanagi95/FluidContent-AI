@@ -37,6 +37,17 @@ def seed():
             "joinDate": date(2025, 6, 3)
         },
         {
+            "id": "3",
+            "name": "Mondadori",
+            "email": "mondadori@ai.com",
+            "avatar": "https://www.gruppomondadori.it/content/uploads/2024/10/Logo-scheda-brand-1.png",
+            "level": 1,
+            "xp": 0,
+            "xpToNext": 50,
+            "totalXp": 5,
+            "joinDate": date(2025, 6, 5)
+        },
+        {
             "id": "a1",
             "name": "Sarah Johnson",
             "email": "sarah@ai.com",
