@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -44,7 +44,13 @@ const handleLogin = async (e: React.FormEvent) => {
     localStorage.setItem('isAuthenticated', 'true');
 
     toast.success('Logged in successfully!');
-    navigate('/dashboard');
+    console.debug('User role:', userRole);
+    if (userRole === 'consumer') {
+      navigate('/articles');
+    } else {
+      navigate('/dashboard');
+    }
+    
   } catch (error: any) {
     const detail = error.response?.data?.detail;
 
@@ -91,7 +97,12 @@ const handleSignup = async (e: React.FormEvent) => {
     localStorage.setItem('isAuthenticated', 'true');
 
     toast.success('Account created successfully!');
-    navigate('/dashboard');
+    console.debug('User role:', userRole);
+    if(userRole === 'consumer') {
+      navigate('/articles');
+    } else {
+      navigate('/dashboard');
+    }
   } catch (error: any) {
     const detail = error.response?.data?.detail;
 

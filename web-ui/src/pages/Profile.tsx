@@ -20,6 +20,7 @@ const Profile = () => {
 
   const userData = localStorage.getItem("user");
   const id = userData ? JSON.parse(userData).id : null;
+  const userRole = localStorage.getItem('userRole') || 'consumer';
 
   useEffect(() => {
   const loadUser = async () => {
@@ -108,10 +109,20 @@ const Profile = () => {
                 alt={user.name}
                 className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-primary/20"
               />
-              <Badge className="bg-primary/10 text-primary border-primary/20">
-                {/* {user.role === 'consumer' ? 'Content Consumer' : 
-                 user.role === 'maker' ? 'Content Maker' : 'Content Provider'} */}
-                 Content {localStorage.getItem("userRole") ? localStorage.getItem("userRole") : "Consumer" }
+              <Badge
+                className={
+                  userRole === 'consumer'
+                    ? 'bg-blue-100 text-blue-600 border-blue-300'
+                    : userRole === 'maker'
+                    ? 'bg-red-100 text-red-600 border-red-300'
+                  : 'bg-green-100 text-green-600 border-green-300'
+                }
+              >
+                {userRole === 'consumer'
+                  ? 'Content Consumer'
+                  : userRole === 'maker'
+                  ? 'Content Maker'
+                  : 'Content Provider'}
               </Badge>
             </div>
 

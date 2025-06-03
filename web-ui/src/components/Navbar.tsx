@@ -59,7 +59,7 @@ const Navbar = () => {
 
     if (userRole === 'consumer') {
       return [
-        ...baseItems,
+        //...baseItems,
         { path: '/articles', label: 'Articles', icon: BookOpen },
         { path: '/gamification', label: 'Progress', icon: Star },
         { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },

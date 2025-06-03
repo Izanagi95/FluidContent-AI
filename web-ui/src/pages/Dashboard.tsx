@@ -8,8 +8,6 @@ import ProviderDashboard from "./Dashboards/ProviderDashboard";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>('consumer');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Fitness', 'Travel', 'Technology']);
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') || 'consumer';
