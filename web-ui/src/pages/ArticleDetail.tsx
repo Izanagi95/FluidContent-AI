@@ -9,7 +9,6 @@ import { Article } from "@/services/ServiceInterface";
 import { toast } from "sonner";
 import axios from "axios";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
-import { marked } from 'marked';
 
 
 interface EnhancedContent {
@@ -327,8 +326,20 @@ const openExternalResource = () => {
                 {/* Enhanced Content */}
                 <Card className="p-8">
                   <div 
-                    className="prose prose-lg max-w-none"
                     dangerouslySetInnerHTML={{ __html: article.enhanced_content.adapted_text }}
+                    className="
+                      [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:my-4 [&_h1]:text-gray-900
+                      [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:my-3 [&_h2]:text-gray-900
+                      [&_h3]:text-2xl [&_h3]:font-bold [&_h3]:my-2 [&_h3]:text-gray-900
+                      [&_p]:text-base [&_p]:my-4 [&_p]:leading-relaxed [&_p]:text-gray-700
+                      [&_strong]:font-bold
+                      [&_em]:italic
+                      [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-4
+                      [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-4
+                      [&_li]:my-1
+                      [&_a]:text-blue-600 [&_a]:underline
+                      [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4
+                    "
                   />
                 </Card>
 
