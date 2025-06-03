@@ -126,9 +126,7 @@ const openExternalResource = () => {
     } else {
       // Create a comprehensive text to read
       const textToRead = `
-        ${marked(article.enhanced_content.adapted_text)}
-        Key takeaways: ${article.enhanced_content.key_takeaways.join('. ')}.
-        Sentiment analysis: ${article.enhanced_content.sentiment_analysis}
+        ${article.enhanced_content.adapted_text}
       `;
       speak(textToRead);
     }

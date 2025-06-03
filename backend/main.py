@@ -470,7 +470,7 @@ async def asyncread_article(article_id: str, user_id: str, db: Session = Depends
             user_id=user.id,
             name=user.name,
             age=configuration.age_preference,
-            interests=configuration.interests.split(","),
+            interests = configuration.interests.split(",") if configuration.interests is not None else [],
             preferences={"lingua": "italiano",
             "stile": configuration.tone_preference}
         ),
