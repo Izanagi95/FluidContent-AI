@@ -19,10 +19,10 @@ def seed():
             "name": "Gabriele",
             "email": "gabbo@ai.com",
             "avatar": "https://forums.terraria.org/data/avatars/h/197/197802.jpg",
-            "level": 6,
-            "xp": 619,
-            "xpToNext": 81,
-            "totalXp": 619,
+            "level": 5,
+            "xp": 422,
+            "xpToNext": 72,
+            "totalXp": 422,
             "joinDate": date(2025, 5, 5)
         },
         {
@@ -30,10 +30,10 @@ def seed():
             "name": "Chenghao",
             "email": "chen@ai.com",
             "avatar": "https://picx.zhimg.com/v2-76fbab64ce538272e15bf84059fc6293_1440w.jpg",
-            "level": 1,
-            "xp": 0,
-            "xpToNext": 50,
-            "totalXp": 5,
+            "level": 6,
+            "xp": 619,
+            "xpToNext": 81,
+            "totalXp": 619,
             "joinDate": date(2025, 6, 3)
         },
         {
@@ -384,8 +384,8 @@ def seed():
         ),
         Leaderboard(
             id='7',
-            name='Gabriele',
-            avatar='https://forums.terraria.org/data/avatars/h/197/197802.jpg',
+            name='Chen',
+            avatar='https://picx.zhimg.com/v2-76fbab64ce538272e15bf84059fc6293_1440w.jpg',
             level=6,
             totalXp=619,
             articlesRead=8,
@@ -393,6 +393,15 @@ def seed():
         ),
         Leaderboard(
             id='8',
+            name='Gabriele',
+            avatar='https://forums.terraria.org/data/avatars/h/197/197802.jpg',
+            level=5,
+            totalXp=422,
+            articlesRead=7,
+            streak=2
+        ),
+        Leaderboard(
+            id='9',
             name='Daniele',
             avatar='https://www.plai-accelerator.com/content/uploads/2024/05/giovannone_daniele_2.jpg',
             level=3,
