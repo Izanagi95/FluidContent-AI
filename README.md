@@ -176,9 +176,14 @@ You can create a new user or log in with one of the predefined test accounts:
 
 - **Frontend**: hosted on **Netlify** (free tier)
 - **Backend**: hosted on **Render** (free tier)
+- **APIs**: calls to **Gemini** (for AI magic 🧠✨) and **ElevenLabs** (for voice synthesis 🎙️) are **free**, but with monthly quotas
 
 So yes, it's magic, but also **free-tier magic**.  
-That means you *might* notice occasional delays, autosleep mode naps 😴, or limits on data transfer 🚧.  
+That means you *might* notice occasional delays, autosleep mode naps 😴, or limits on data transfer 🚧. 
+
+👉 And hey, **go easy on the AI** — it's addictive 🤖❤️  
+Too many prompts and we run out of quota… and then who's the real machine here? 😅
+
 Oh, and our servers are based in Europe, so depending on where you are, your data may be going on a little Eurotrip. ✈️🇪🇺
 
 ---
