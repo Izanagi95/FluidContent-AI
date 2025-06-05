@@ -24,7 +24,7 @@ export const useTextToSpeech = () => {
           },
           content: {
             title: "",
-            original_text: text
+            original_text: text.slice(0, 400), // limit to 400 characters
           }
         };
 
