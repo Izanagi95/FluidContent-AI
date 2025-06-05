@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import axios from "axios";
 
 interface ProfileData {
-  user_id: string;
+  user_id: string | null;
   name: string;
   age: number;
   interests: string[];
@@ -20,12 +20,9 @@ interface ProfileData {
   };
 }
 
-const userData = localStorage.getItem("user");
-const id = userData ? JSON.parse(userData).id : null;
-
 const ProfileConfigurationCard = () => {
   const [profileData, setProfileData] = useState<ProfileData>({
-    user_id: id,
+    user_id: null,
     name: "",
     age: 18,
     interests: [],
@@ -82,18 +79,23 @@ const ProfileConfigurationCard = () => {
   };
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    const id = userData ? JSON.parse(userData).id : null;
+
     if (!id) return;
+
+    setProfileData((prev) => ({ ...prev, user_id: id }));
 
     const loadProfile = async () => {
       try {
-        const response = await axios.get(import.meta.env.VITE_API_URL + `/configurations/user/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/configurations/user/${id}`);
         const data = response.data;
 
         setProfileData({
           user_id: data.user_id,
           name: data.name,
           age: data.age_preference,
-          interests: data.interests ? data.interests == "" ? [] : data.interests.split(",") : [], 
+          interests: data.interests ? (data.interests === "" ? [] : data.interests.split(",")) : [],
           preferences: {
             tone: data.tone_preference,
             length: data.length_preference,
@@ -109,7 +111,8 @@ const ProfileConfigurationCard = () => {
   }, []);
 
   const saveProfile = async () => {
-    console.debug("Saving profile data:", profileData);
+    if (!profileData.user_id) return;
+
     const body = {
       user_id: profileData.user_id,
       name: profileData.name,
@@ -117,7 +120,7 @@ const ProfileConfigurationCard = () => {
       tone_preference: profileData.preferences.tone,
       length_preference: profileData.preferences.length,
       format_preference: profileData.preferences.format_preference,
-      interests: profileData.interests.join(",")
+      interests: profileData.interests.join(","),
     };
 
     try {

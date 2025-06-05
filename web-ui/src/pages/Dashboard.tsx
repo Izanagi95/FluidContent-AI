@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ConsumerDashboard from "./Dashboards/ConsumerDashboard";
 import MakerDashboard from "./Dashboards/MakerDashboard";
 import ProviderDashboard from "./Dashboards/ProviderDashboard";
+import Articles from "./Articles";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +22,9 @@ const Dashboard = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 pt-20">
+<>
+     {userRole === 'consumer' ? <Articles /> : 
+         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
@@ -33,13 +36,12 @@ const Dashboard = () => {
             {userRole === 'provider' && "Share your authentic media and earn from it"}
           </p>
         </div>
-
-        {userRole === 'consumer' && <ConsumerDashboard />}
         {userRole === 'maker' && <MakerDashboard />}
         {userRole === 'provider' && <ProviderDashboard />}
       </div>
-    </div>
-  );
+    </div>}
+
+  </>);
 };
 
 

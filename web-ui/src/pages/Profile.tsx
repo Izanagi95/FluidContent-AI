@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,62 +12,75 @@ const Profile = () => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: ''
-  });
-
-  const userData = localStorage.getItem("user");
-  const id = userData ? JSON.parse(userData).id : null;
-  const userRole = localStorage.getItem('userRole') || 'consumer';
+  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [id, setId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState('consumer');
 
   useEffect(() => {
-  const loadUser = async () => {
+    // Carica dati da localStorage solo sul client
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/` + id);
-      if (response.status !== 200) {
-        throw new Error('Failed to load user');
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        if (parsed.id) {
+          setId(parsed.id);
+        } else {
+          console.warn("ID mancante nell'oggetto user:", parsed);
+        }
+      } else {
+        console.warn("Nessun dato utente trovato in localStorage.");
       }
-      const userData = response.data;
-      setUser(userData);
-      setFormData({
-        name: userData.name,
-        email: userData.email
-      });
-    } catch (error) {
-      console.error('Failed to load user:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  loadUser();
-}, [id]);
 
-  const handleSave = async () => {
-    if (!user) return;
-    const newUser = {
-      ...user,
-      ...formData
+      const role = localStorage.getItem('userRole');
+      if (role) setUserRole(role);
+    } catch (error) {
+      console.error("Errore nel parsing di localStorage user:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/${id}`);
+        if (response.status !== 200) throw new Error("Failed to load user");
+
+        const userData = response.data;
+        setUser(userData);
+        setFormData({ name: userData.name, email: userData.email });
+      } catch (error) {
+        console.error("Errore durante il caricamento utente:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-  try {
-    const response = await axios.put(`${import.meta.env.VITE_API_URL}/users/${id}`, newUser);
-    const updatedUser = response.data;
-    setUser(updatedUser);
-    setEditing(false);
-    toast.success('Profile updated successfully!', response.data);
-  } catch (error) {
-    console.error('Failed to update profile:', error);
-    toast.error('Failed to update profile');
-  }
-};
+    loadUser();
+  }, [id]);
+
+  const handleSave = async () => {
+    if (!user || !id) return;
+
+    const newUser = { ...user, ...formData };
+
+    try {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/users/${id}`, newUser);
+      setUser(response.data);
+      setEditing(false);
+      toast.success('Profile updated successfully!', response.data);
+    } catch (error) {
+      console.error("Errore nell'aggiornamento del profilo:", error);
+      toast.error('Failed to update profile');
+    }
+  };
 
   const handleCancel = () => {
     if (user) {
-      setFormData({
-        name: user.name,
-        email: user.email
-      });
+      setFormData({ name: user.name, email: user.email });
     }
     setEditing(false);
   };
@@ -89,20 +101,15 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
             <span className="gradient-text">Profile</span>
           </h1>
-          <p className="text-xl text-gray-600">
-            Manage your account and view your progress
-          </p>
+          <p className="text-xl text-gray-600">Manage your account and view your progress</p>
         </div>
 
-        {/* Profile Card */}
         <Card className="p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Avatar and Basic Info */}
             <div className="flex-shrink-0 text-center">
               <img 
                 src={user.avatar}
@@ -115,7 +122,7 @@ const Profile = () => {
                     ? 'bg-blue-100 text-blue-600 border-blue-300'
                     : userRole === 'maker'
                     ? 'bg-red-100 text-red-600 border-red-300'
-                  : 'bg-green-100 text-green-600 border-green-300'
+                    : 'bg-green-100 text-green-600 border-green-300'
                 }
               >
                 {userRole === 'consumer'
@@ -126,15 +133,10 @@ const Profile = () => {
               </Badge>
             </div>
 
-            {/* User Details */}
             <div className="flex-1 space-y-6">
               <div className="flex justify-between items-start">
                 <h2 className="text-3xl font-bold">{user.name}</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditing(!editing)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>
                   <Edit3 className="h-4 w-4 mr-2" />
                   {editing ? 'Cancel' : 'Edit'}
                 </Button>
@@ -184,7 +186,6 @@ const Profile = () => {
           </div>
         </Card>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="p-6 text-center">
             <div className="w-12 h-12 bg-yellow-100 text-yellow-600 mx-auto mb-3 flex items-center justify-center rounded-full">
@@ -211,10 +212,8 @@ const Profile = () => {
           </Card>
         </div>
 
-        {/* Recent Achievements */}
         <Card className="p-6">
           <h3 className="text-2xl font-semibold mb-6">Recent Achievements</h3>
-          
           {user.achievements.length > 0 ? (
             <div className="space-y-4">
               {user.achievements.slice(-3).map((entry) => (
