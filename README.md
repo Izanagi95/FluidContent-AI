@@ -59,6 +59,7 @@ The output is a structured JSON for seamless integration into any digital platfo
 ---
 
 ## 🚀 Running the Application
+### 💻 Local deploy
 
 How to locally run the application.
 
@@ -134,7 +135,51 @@ How to locally run the application.
         ```
 
 4.  **Check the Application:**
-    Open your frontend URL in your browser (e.g., [http://localhost:8080](http://localhost:8080) or the port specified by `npm run dev`).
+    Open your UI URL in your browser (e.g., [http://localhost:8080](http://localhost:8080) or the port specified by `npm run dev`).
+
+### 🐳 Docker Deploy
+How to run the application using Docker (recommended for easy setup).
+
+**Prerequisites:**
+
+- Docker
+- Docker Compose
+- Docker Dekstop (solo per Windows)
+
+**Installation & Setup:**
+
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/Gabbosaur/FluidContent-AI.git
+    cd FluidContent-AI
+    ```
+2.  **Install and launch the application:**
+    ```sh
+    docker compose up --build
+    ```
+3.  **Check the Application:**
+    Open your UI URL in your browser (e.g., [http://localhost:8080](http://localhost:8080)).
+
+---
+
+## 🌐 Live Demo
+
+Try it yourself: [fluid-content-ai.netlify.app](https://fluid-content-ai.netlify.app/)
+
+You can create a new user or log in with one of the predefined test accounts:
+
+- **chen@ai.com** / **TEST**
+- **gabbo@ai.com** / **TEST**
+- **mondadori@ai.com** / **TEST**
+
+**⚙️ Tech behind the scenes:**
+
+- **Frontend**: hosted on **Netlify** (free tier)
+- **Backend**: hosted on **Render** (free tier)
+
+So yes, it's magic, but also **free-tier magic**.  
+That means you *might* notice occasional delays, autosleep mode naps 😴, or limits on data transfer 🚧.  
+Oh, and our servers are based in Europe, so depending on where you are, your data may be going on a little Eurotrip. ✈️🇪🇺
 
 ---
 
